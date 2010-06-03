@@ -3,7 +3,7 @@
 
 Please read the [extended documentation][wpalchemy] for full details.
 
-These files are for demonstration purposes only, be careful not to overwrite your existing functions.php file, you may want to back it up first.
+These files are for demonstration purposes only, be careful not to overwrite your existing `functions.php` file, you may want to back it up first.
 
 You should place these files in your current theme directory:
 

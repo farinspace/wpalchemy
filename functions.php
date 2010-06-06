@@ -2,10 +2,9 @@
 
 include_once 'WPAlchemy/MetaBox.php';
  
- // todo: limit to only admin pages
 // include css to help style our custom meta boxes
-// this should be a global stylesheet used by all similar metaboxes
-wp_enqueue_style('custom_meta_css','/wp-content/themes/twentyten/custom/meta.css');
+// this should be a global stylesheet used by all similar meta boxes
+if (is_admin()) wp_enqueue_style('custom_meta_css','/wp-content/themes/twentyten/custom/meta.css');
  
 $custom_metabox = new WPAlchemy_MetaBox(array
 (

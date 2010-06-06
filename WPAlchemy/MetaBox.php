@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+add_action('admin_head',array(WPAlchemy_MetaBox,'setup_special'));
+
 class WPAlchemy_MetaBox
 {
 	var $id;
@@ -60,6 +62,7 @@ class WPAlchemy_MetaBox
 	var $lenth = 0;
 	var $current = -1;
 	var $in_loop = FALSE;
+	var $group_tag;
 	
 	function WPAlchemy_MetaBox($arr)
 	{
@@ -364,6 +367,79 @@ class WPAlchemy_MetaBox
 		echo '<input type="hidden" name="'. $this->id .'_nonce" value="' . wp_create_nonce($this->id) . '" />';
 	}
 
+	function setup_special()
+	{
+// include javascript for special functionality
+echo <<<'WPAMB'
+<style type="text/css"> .wpa_group.tocopy { display:none; } </style>
+<script type="text/javascript">
+/* <![CDATA[ */
+jQuery(function($)
+{
+	$(document).click(function(e)
+	{		
+		var elem = $(e.target);
+
+		if (elem.attr('class') && elem.filter('[class*=dodelete]').length)
+		{
+			e.preventDefault();
+
+			var the_name = elem.attr('class').match(/dodelete-(\w*)/i);
+			the_name = (the_name && the_name[1]) ? the_name[1] : null ;
+
+			if (confirm('This action can not be undone, are you sure?'))
+			{
+				if (the_name)
+				{
+					$('.wpa_group-'+ the_name).not('.tocopy').remove();
+				}
+				else
+				{
+					elem.parents('.wpa_group').remove();
+				}
+			}
+
+			$('.docopy-'+the_name).trigger('click');
+		}
+	});
+	
+	$('[class*=docopy-]').click(function(e)
+	{
+		e.preventDefault();
+
+		var the_name = $(this).attr('class').match(/docopy-(\w*)/i)[1];
+
+		var the_group = $('.wpa_group-'+ the_name +':first.tocopy');
+		
+		var the_clone = the_group.clone().removeClass('tocopy');
+
+		the_group.find('input, textarea, select, button, label').each(function(i,elem)
+		{
+			var the_name = $(elem).attr('name');
+
+			if (undefined != the_name)
+			{
+				var the_match = the_name.match(/\[(\d+)\]/i);
+				the_name = the_name.replace(the_match[0],'['+(+the_match[1]+1)+']');
+				$(elem).attr('name',the_name);
+			}
+		});
+
+		if ($(this).hasClass('ontop'))
+		{
+			$('.wpa_group-'+ the_name +':first').before(the_clone);
+		}
+		else
+		{
+			the_group.before(the_clone);
+		}
+	});
+});
+/* ]]> */
+</script>
+WPAMB;
+	}
+
 	function the_meta()
 	{
 		global $post;
@@ -461,6 +537,16 @@ class WPAlchemy_MetaBox
 		}
 	}
 
+	function the_index()
+	{
+		echo $this->get_the_index();
+	}
+
+	function get_the_index()
+	{
+		return $this->in_loop ? $this->current : 0 ;
+	}
+
 	function is_first()
 	{
 		if ($this->in_loop AND $this->current == 0) return TRUE;
@@ -475,20 +561,94 @@ class WPAlchemy_MetaBox
 		return FALSE;
 	}
 
-	function have_fields_and_one($n)
+	function is_value($v=NULL)
 	{
-		return $this->have_fields($n,NULL,TRUE);
+		if ($this->get_the_value() == $v) return TRUE;
+
+		return FALSE;
 	}
 
-	function have_fields($n,$length=NULL,$and_one=FALSE)
+	function the_group_open($t='div')
 	{
-		$this->in_loop = TRUE;
+		echo $this->get_the_group_open($t);
+	}
+
+	function get_the_group_open($t='div')
+	{
+		$this->group_tag = $t;
+
+		$css_class = array('wpa_group','wpa_group-'. $this->name);
+
+		if ($this->is_first())
+		{
+			array_push($css_class,'first');
+		}
+
+		if ($this->is_last())
+		{
+			array_push($css_class,'last');
+
+			if ($this->in_loop == 'multi')
+			{
+				array_push($css_class,'tocopy');
+			}
+		}
+
+		return '<'. $t .' class="'. implode(' ',$css_class) .'">';
+	}
+
+	function the_group_close()
+	{
+		echo $this->get_the_group_close();
+	}
+
+	function get_the_group_close()
+	{
+		return '</'. $this->group_tag .'>';
+	}
+
+	function have_fields_and_multi($n)
+	{
+		$this->in_loop = 'multi';
+		return $this->loop($n,NULL,2);
+	}
+
+	function have_fields_and_one($n)
+	{
+		$this->in_loop = 'single';
+		return $this->loop($n,NULL,1);
+	}
+
+	function have_fields($n,$length=NULL)
+	{
+		$this->in_loop = 'normal';
+		return $this->loop($n,$length);
+	}
+
+	function loop($n,$length=NULL,$and_one=0)
+	{
+		if (!$this->in_loop) 
+		{
+			$this->in_loop = TRUE;
+		}
 		
 		$this->name = $n;
 
 		$length = is_null($length) ? count(!empty($this->meta[$n])?$this->meta[$n]:NULL) : $length ;
 		
-		$this->length = $and_one ? $length+1 : $length ;
+		$this->length = $length;
+
+		if ($and_one)
+		{
+			if ($length == 0)
+			{
+				$this->length = $and_one;
+			}
+			else
+			{
+				$this->length = $length+1;
+			}
+		}
 
 		$this->current++;
 
@@ -574,10 +734,30 @@ class WPAlchemy_MetaBox
 					}
 				}
 			}
-	 
+
 			if (!count($arr)) 
 			{
 				$arr = NULL;
+			}
+			else
+			{
+				$keys = array_keys($arr);
+
+				$is_numeric = TRUE;
+
+				foreach ($keys as $key)
+				{
+					if (!is_numeric($key)) 
+					{
+						$is_numeric = FALSE;
+						break;
+					}
+				}
+
+				if ($is_numeric)
+				{
+					$arr = array_values($arr);
+				}
 			}
 		}
 	}

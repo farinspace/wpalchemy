@@ -1,4 +1,4 @@
-[WPAlchemy MetaBox PHP Class][wpalchemy]
+[WordPress MetaBox PHP Class][wpalchemy]
 =========================
 
 Please read the [extended documentation][wpalchemy] for full details.

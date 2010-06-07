@@ -369,75 +369,74 @@ class WPAlchemy_MetaBox
 
 	function setup_special()
 	{
-// include javascript for special functionality
-echo <<<WPAMB
-<style type="text/css"> .wpa_group.tocopy { display:none; } </style>
-<script type="text/javascript">
-/* <![CDATA[ */
-jQuery(function($)
-{
-	$(document).click(function(e)
-	{		
-		var elem = $(e.target);
-
-		if (elem.attr('class') && elem.filter('[class*=dodelete]').length)
+		// include javascript for special functionality
+		?><style type="text/css"> .wpa_group.tocopy { display:none; } </style>
+		<script type="text/javascript">
+		/* <![CDATA[ */
+		jQuery(function($)
 		{
-			e.preventDefault();
+			$(document).click(function(e)
+			{		
+				var elem = $(e.target);
 
-			var the_name = elem.attr('class').match(/dodelete-(\w*)/i);
-			the_name = (the_name && the_name[1]) ? the_name[1] : null ;
-
-			if (confirm('This action can not be undone, are you sure?'))
-			{
-				if (the_name)
+				if (elem.attr('class') && elem.filter('[class*=dodelete]').length)
 				{
-					$('.wpa_group-'+ the_name).not('.tocopy').remove();
+					e.preventDefault();
+
+					var the_name = elem.attr('class').match(/dodelete-(\w*)/i);
+					the_name = (the_name && the_name[1]) ? the_name[1] : null ;
+
+					if (confirm('This action can not be undone, are you sure?'))
+					{
+						if (the_name)
+						{
+							$('.wpa_group-'+ the_name).not('.tocopy').remove();
+						}
+						else
+						{
+							elem.parents('.wpa_group').remove();
+						}
+					}
+
+					$('.docopy-'+the_name).trigger('click');
+				}
+			});
+			
+			$('[class*=docopy-]').click(function(e)
+			{
+				e.preventDefault();
+
+				var the_name = $(this).attr('class').match(/docopy-(\w*)/i)[1];
+
+				var the_group = $('.wpa_group-'+ the_name +':first.tocopy');
+				
+				var the_clone = the_group.clone().removeClass('tocopy');
+
+				the_group.find('input, textarea, select, button, label').each(function(i,elem)
+				{
+					var the_name = $(elem).attr('name');
+
+					if (undefined != the_name)
+					{
+						var the_match = the_name.match(/\[(\d+)\]/i);
+						the_name = the_name.replace(the_match[0],'['+(+the_match[1]+1)+']');
+						$(elem).attr('name',the_name);
+					}
+				});
+
+				if ($(this).hasClass('ontop'))
+				{
+					$('.wpa_group-'+ the_name +':first').before(the_clone);
 				}
 				else
 				{
-					elem.parents('.wpa_group').remove();
+					the_group.before(the_clone);
 				}
-			}
-
-			$('.docopy-'+the_name).trigger('click');
-		}
-	});
-	
-	$('[class*=docopy-]').click(function(e)
-	{
-		e.preventDefault();
-
-		var the_name = $(this).attr('class').match(/docopy-(\w*)/i)[1];
-
-		var the_group = $('.wpa_group-'+ the_name +':first.tocopy');
-		
-		var the_clone = the_group.clone().removeClass('tocopy');
-
-		the_group.find('input, textarea, select, button, label').each(function(i,elem)
-		{
-			var the_name = $(elem).attr('name');
-
-			if (undefined != the_name)
-			{
-				var the_match = the_name.match(/\[(\d+)\]/i);
-				the_name = the_name.replace(the_match[0],'['+(+the_match[1]+1)+']');
-				$(elem).attr('name',the_name);
-			}
+			});
 		});
-
-		if ($(this).hasClass('ontop'))
-		{
-			$('.wpa_group-'+ the_name +':first').before(the_clone);
-		}
-		else
-		{
-			the_group.before(the_clone);
-		}
-	});
-});
-/* ]]> */
-</script>
-WPAMB;}
+		/* ]]> */
+		</script><?php
+	}
 
 	function the_meta()
 	{
@@ -761,3 +760,5 @@ WPAMB;}
 		}
 	}
 }
+
+?>

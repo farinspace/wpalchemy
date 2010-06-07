@@ -370,7 +370,7 @@ class WPAlchemy_MetaBox
 	function setup_special()
 	{
 // include javascript for special functionality
-echo <<<'WPAMB'
+echo <<<WPAMB
 <style type="text/css"> .wpa_group.tocopy { display:none; } </style>
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -437,8 +437,7 @@ jQuery(function($)
 });
 /* ]]> */
 </script>
-WPAMB;
-	}
+WPAMB;}
 
 	function the_meta()
 	{

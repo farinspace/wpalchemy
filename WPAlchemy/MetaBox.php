@@ -32,6 +32,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 add_action('admin_head',array(WPAlchemy_MetaBox,'setup_special'));
 
+define('WPALCHEMY_MODE_ARRAY','array');
+define('WPALCHEMY_MODE_EXTRACT','extract');
+
 class WPAlchemy_MetaBox
 {
 	var $id;
@@ -41,6 +44,8 @@ class WPAlchemy_MetaBox
 	var $priority = 'high';
 	var $template;
 	var $autosave = TRUE;
+
+	var $mode = WPALCHEMY_MODE_ARRAY;
 
 	var $exclude_template;
 	var $exclude_category_id;
@@ -56,6 +61,7 @@ class WPAlchemy_MetaBox
 	var $include_tag;
 	var $include_post_id;
 
+	// private
 	var $meta;
 	var $name;
 	var $subname;
@@ -63,6 +69,7 @@ class WPAlchemy_MetaBox
 	var $current = -1;
 	var $in_loop = FALSE;
 	var $group_tag;
+	var $current_post_id;
 	
 	function WPAlchemy_MetaBox($arr)
 	{
@@ -104,7 +111,8 @@ class WPAlchemy_MetaBox
 
 			foreach ($exc_inc as $v)
 			{
-				if (!empty($this->$v) AND !is_array($this->$v)) 
+				// ideally the exclude and include values should be in array form, convert to array otherwise
+				if (!empty($this->$v) AND !is_array($this->$v))
 				{
 					$this->$v = array_map('trim',explode(',',$this->$v));
 				}
@@ -337,6 +345,7 @@ class WPAlchemy_MetaBox
 		return $can_output;
 	}
 
+	// private
 	function init()
 	{
 		if ($this->can_output())
@@ -349,26 +358,33 @@ class WPAlchemy_MetaBox
 			add_action('save_post',array($this,'save'));
 		}
 	}
-	 
+
+	// private
 	function setup()
 	{
+		// also make current post data available
 		global $post;
 
+		// shortcuts
+		// $this
 		$mb =& $this;
 		$metabox =& $this;
-		
 		$id = $this->id;
+		$meta = $this->the_meta(TRUE);
 
-		$meta = $this->the_meta();
-
+		// users may want to use a templete for multiple meta boxes
 		include $this->template;
 	 
 		// create a nonce for verification
 		echo '<input type="hidden" name="'. $this->id .'_nonce" value="' . wp_create_nonce($this->id) . '" />';
 	}
 
+	// private
 	function setup_special()
 	{
+		// todo: you're assuming people will want to use this exact functionality
+		// consider giving a developer access to change this via hooks/callbacks
+
 		// include javascript for special functionality
 		?><style type="text/css"> .wpa_group.tocopy { display:none; } </style>
 		<script type="text/javascript">
@@ -438,18 +454,41 @@ class WPAlchemy_MetaBox
 		</script><?php
 	}
 
-	function the_meta()
+	function the_meta($bypass=FALSE)
 	{
 		global $post;
+		
+		$post_id = $post->ID;
 
-		$this->meta = get_post_meta($post->ID, $this->id, TRUE);
+		// this allows multiple internal calls to the_meta() without having to fetch data everytime
+		if ($bypass AND !empty($this->meta) AND $this->current_post_id == $post_id) return $this->meta;
 
-		// bug: when exporting then importing from wp, wp will double serialize the postmeta value
-		if (!is_array($this->meta)) $this->meta = unserialize($this->meta);
+		$this->current_post_id = $post_id;
+
+		if ($this->mode == WPALCHEMY_MODE_EXTRACT)
+		{
+			$fields = get_post_meta($post_id, $this->id . '_fields', TRUE);
+
+			if (!empty($fields) AND is_array($fields))
+			{
+				foreach ($fields as $field)
+				{
+					$this->meta[$field] = get_post_meta($post_id, $field, TRUE);
+				}
+			}
+		}
+		else
+		{
+			$this->meta = get_post_meta($post_id, $this->id, TRUE);
+
+			// bug: when exporting then importing from wp, wp will double serialize the postmeta value
+			if (!is_array($this->meta)) $this->meta = unserialize($this->meta);
+		}
 
 		return $this->meta;
 	}
 
+	// user can also use the_ID(), php functions are case-insensitive
 	function the_id()
 	{
 		echo $this->get_the_id();
@@ -480,6 +519,8 @@ class WPAlchemy_MetaBox
 
 	function get_the_value($n=NULL)
 	{
+		$this->the_meta(TRUE);
+
 		if ($this->in_loop)
 		{
 			if(!empty($this->meta[$this->name]))
@@ -607,25 +648,30 @@ class WPAlchemy_MetaBox
 
 	function have_fields_and_multi($n)
 	{
+		$this->the_meta(TRUE);
 		$this->in_loop = 'multi';
 		return $this->loop($n,NULL,2);
 	}
 
+	// depreciated
 	function have_fields_and_one($n)
 	{
+		$this->the_meta(TRUE);
 		$this->in_loop = 'single';
 		return $this->loop($n,NULL,1);
 	}
 
 	function have_fields($n,$length=NULL)
 	{
+		$this->the_meta(TRUE);
 		$this->in_loop = 'normal';
 		return $this->loop($n,$length);
 	}
 
+	// private
 	function loop($n,$length=NULL,$and_one=0)
 	{
-		if (!$this->in_loop) 
+		if (!$this->in_loop)
 		{
 			$this->in_loop = TRUE;
 		}
@@ -669,9 +715,25 @@ class WPAlchemy_MetaBox
 
 		return FALSE;
 	}
-	 
+
+	// private 
 	function save($post_id) 
 	{
+		/**
+		 * note: the "save_post" action fires for saving revisions and post/pages, 
+		 * when saving a post this function fires twice, once for a revision save, 
+		 * and again for the post/page save ... the $post_id is different for the
+		 * revision save, this means that "get_post_meta()" will not work if trying
+		 * to get values for a revision (as it has no post meta data)
+		 * see http://alexking.org/blog/2008/09/06/wordpress-26x-duplicate-custom-field-issue
+		 *
+		 * why let the code run twice? wordpress does not currently save post meta
+		 * data per revisions (I think it should, so users can do a complete revert),
+		 * so in the case that this functionality changes, let the it run twice
+		 */
+
+		$real_post_id = $_POST['post_ID'];
+		
 		// check autosave
 		if (defined('DOING_AUTOSAVE') AND DOING_AUTOSAVE AND !$this->autosave) return $post_id;
 	 
@@ -690,25 +752,79 @@ class WPAlchemy_MetaBox
 	 
 		// authentication passed, save data
 	 
-		$current_data = get_post_meta($post_id, $this->id, TRUE);	
-	 
 		$new_data = $_POST[$this->id];
 	 
 		WPAlchemy_MetaBox::clean($new_data);
-	 
-		if ($current_data) 
+
+		// get current fields, use $real_post_id (used in both modes)
+		$current_fields = get_post_meta($real_post_id, $this->id . '_fields', TRUE);
+
+		if ($this->mode == WPALCHEMY_MODE_EXTRACT)
 		{
-			if (is_null($new_data)) delete_post_meta($post_id,$this->id);
-			else update_post_meta($post_id,$this->id,$new_data);
+			$new_fields = array();
+
+			foreach ($new_data as $k => $v)
+			{
+				array_push($new_fields,$k);
+
+				$current_value = get_post_meta($post_id, $k, TRUE);
+
+				$new_value = $new_data[$k];
+
+				if (!empty($current_value))
+				{
+					if (is_null($new_value)) delete_post_meta($post_id,$k);
+					else update_post_meta($post_id,$k,$new_value);
+				}
+				elseif (!is_null($new_value))
+				{
+					add_post_meta($post_id,$k,$new_value,TRUE);
+				}
+			}
+
+			$diff_fields = array_diff((array)$current_fields,$new_fields);
+
+			foreach ($diff_fields as $field)
+			{
+				delete_post_meta($post_id,$field);
+			}
+
+			delete_post_meta($post_id, $this->id . '_fields');
+			add_post_meta($post_id,$this->id . '_fields',$new_fields,TRUE);
+
+			// keep data tidy, delete values if previously using WPALCHEMY_MODE_ARRAY
+			delete_post_meta($post_id, $this->id);
 		}
-		elseif (!is_null($new_data))
+		else
 		{
-			add_post_meta($post_id,$this->id,$new_data,TRUE);
+			$current_data = get_post_meta($post_id, $this->id, TRUE);
+			
+			if ($current_data)
+			{
+				if (is_null($new_data)) delete_post_meta($post_id,$this->id);
+				else update_post_meta($post_id,$this->id,$new_data);
+			}
+			elseif (!is_null($new_data))
+			{
+				add_post_meta($post_id,$this->id,$new_data,TRUE);
+			}
+
+			// keep data tidy, delete values if previously using WPALCHEMY_MODE_EXTRACT
+			if (!empty($current_fields))
+			{
+				foreach ($current_fields as $field)
+				{
+					delete_post_meta($post_id, $field);
+				}
+
+				delete_post_meta($post_id, $this->id . '_fields');
+			}
 		}
-	 
+
 		return $post_id;
 	}
 	 
+	// private
 	function clean(&$arr)
 	{
 		if (is_array($arr))

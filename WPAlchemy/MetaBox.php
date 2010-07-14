@@ -46,6 +46,7 @@ class WPAlchemy_MetaBox
 	var $autosave = TRUE;
 
 	var $mode = WPALCHEMY_MODE_ARRAY;
+	var $prefix;
 
 	var $exclude_template;
 	var $exclude_category_id;
@@ -68,6 +69,7 @@ class WPAlchemy_MetaBox
 	var $lenth = 0;
 	var $current = -1;
 	var $in_loop = FALSE;
+	var $in_template = FALSE;
 	var $group_tag;
 	var $current_post_id;
 	
@@ -362,6 +364,8 @@ class WPAlchemy_MetaBox
 	// private
 	function setup()
 	{
+		$this->in_template = TRUE;
+		
 		// also make current post data available
 		global $post;
 
@@ -377,6 +381,8 @@ class WPAlchemy_MetaBox
 	 
 		// create a nonce for verification
 		echo '<input type="hidden" name="'. $this->id .'_nonce" value="' . wp_create_nonce($this->id) . '" />';
+
+		$this->in_template = FALSE;
 	}
 
 	// private
@@ -473,7 +479,8 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($fields as $field)
 				{
-					$this->meta[$field] = get_post_meta($post_id, $field, TRUE);
+					$field_noprefix = str_replace($this->prefix,'',$field);
+					$this->meta[$field_noprefix] = get_post_meta($post_id, $field, TRUE);
 				}
 			}
 		}
@@ -560,6 +567,11 @@ class WPAlchemy_MetaBox
 
 	function get_the_name($n=NULL)
 	{
+		if (!$this->in_template AND $this->mode == WPALCHEMY_MODE_EXTRACT)
+		{
+			return $this->prefix . str_replace($this->prefix,'',is_null($n) ? $this->name : $n);
+		}
+
 		if ($this->in_loop)
 		{
 			$n = is_null($n) ? $this->subname : $n ;
@@ -765,20 +777,22 @@ class WPAlchemy_MetaBox
 
 			foreach ($new_data as $k => $v)
 			{
-				array_push($new_fields,$k);
+				$field = $this->prefix . $k;
+				
+				array_push($new_fields,$field);
 
-				$current_value = get_post_meta($post_id, $k, TRUE);
+				$current_value = get_post_meta($post_id, $field, TRUE);
 
 				$new_value = $new_data[$k];
 
 				if (!empty($current_value))
 				{
-					if (is_null($new_value)) delete_post_meta($post_id,$k);
-					else update_post_meta($post_id,$k,$new_value);
+					if (is_null($new_value)) delete_post_meta($post_id,$field);
+					else update_post_meta($post_id,$field,$new_value);
 				}
 				elseif (!is_null($new_value))
 				{
-					add_post_meta($post_id,$k,$new_value,TRUE);
+					add_post_meta($post_id,$field,$new_value,TRUE);
 				}
 			}
 

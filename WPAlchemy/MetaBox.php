@@ -658,11 +658,11 @@ class WPAlchemy_MetaBox
 		return '</'. $this->group_tag .'>';
 	}
 
-	function have_fields_and_multi($n)
+	function have_fields_and_multi($n,$length=NULL)
 	{
 		$this->the_meta(TRUE);
 		$this->in_loop = 'multi';
-		return $this->loop($n,NULL,2);
+		return $this->loop($n,$length,2);
 	}
 
 	// depreciated
@@ -741,7 +741,7 @@ class WPAlchemy_MetaBox
 		 *
 		 * why let the code run twice? wordpress does not currently save post meta
 		 * data per revisions (I think it should, so users can do a complete revert),
-		 * so in the case that this functionality changes, let the it run twice
+		 * so in the case that this functionality changes, let it run twice
 		 */
 
 		$real_post_id = $_POST['post_ID'];

@@ -690,8 +690,12 @@ class WPAlchemy_MetaBox
 		
 		$this->name = $n;
 
-		$length = is_null($length) ? count(!empty($this->meta[$n])?$this->meta[$n]:NULL) : $length ;
+		$cnt = count(!empty($this->meta[$n])?$this->meta[$n]:NULL);
+
+		$length = is_null($length) ? $cnt : $length ;
 		
+		if ($this->in_loop == 'multi' AND $cnt > $length) $length = $cnt;
+
 		$this->length = $length;
 
 		if ($and_one)

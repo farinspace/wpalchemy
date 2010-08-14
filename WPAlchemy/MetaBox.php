@@ -405,7 +405,7 @@ class WPAlchemy_MetaBox
 				{
 					e.preventDefault();
 
-					var the_name = elem.attr('class').match(/dodelete-(\w*)/i);
+					var the_name = elem.attr('class').match(/dodelete-([a-zA-Z0-9_-]*)/i);
 					the_name = (the_name && the_name[1]) ? the_name[1] : null ;
 
 					if (confirm('This action can not be undone, are you sure?'))
@@ -428,7 +428,7 @@ class WPAlchemy_MetaBox
 			{
 				e.preventDefault();
 
-				var the_name = $(this).attr('class').match(/docopy-(\w*)/i)[1];
+				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
 
 				var the_group = $('.wpa_group-'+ the_name +':first.tocopy');
 				
@@ -894,5 +894,16 @@ class WPAlchemy_MetaBox
 		}
 	}
 }
+
+/*
+
+Contributors:
+
+	Suso Guez | http://shambanet.com/
+	http://farinspace.com/wpalchemy-metabox/comment-page-1/#comment-3156
+
+	All who have given their feedback and ideas.
+
+*/
 
 ?>

@@ -29,8 +29,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 */
+error_reporting(E_ALL);
+ini_set("display_errors", 1); 
 
-add_action('admin_head',array(WPAlchemy_MetaBox,'setup_special'));
+add_action('admin_head',array('WPAlchemy_MetaBox','setup_special'));
 
 define('WPALCHEMY_MODE_ARRAY','array');
 define('WPALCHEMY_MODE_EXTRACT','extract');
@@ -132,7 +134,9 @@ class WPAlchemy_MetaBox
 	{
 		global $post;
 		
-		$post_id = ($_GET['post']) ? $_GET['post'] : $_POST['post_ID'] ;
+		$p_post_id = isset($_POST['post_ID']) ? $_POST['post_ID'] : '' ;
+		$g_post_id = isset($_GET['post']) ? $_GET['post'] : '' ;
+		$post_id = $g_post_id ? $g_post_id : $p_post_id ;
 
 		$post_id = (!empty($post) AND $post->ID) ? $post->ID : $post_id ;
 
@@ -350,6 +354,9 @@ class WPAlchemy_MetaBox
 	// private
 	function init()
 	{
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '' ;
+		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
+		
 		if ($this->can_output())
 		{
 			foreach ($this->types as $type) 

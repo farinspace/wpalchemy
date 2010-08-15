@@ -29,8 +29,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 */
-error_reporting(E_ALL);
-ini_set("display_errors", 1); 
 
 add_action('admin_head',array('WPAlchemy_MetaBox','setup_special'));
 

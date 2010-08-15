@@ -419,8 +419,6 @@ class WPAlchemy_MetaBox
 							elem.parents('.wpa_group').remove();
 						}
 					}
-
-					$('.docopy-'+the_name).trigger('click');
 				}
 			});
 			

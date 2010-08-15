@@ -354,7 +354,7 @@ class WPAlchemy_MetaBox
 	// private
 	function init()
 	{
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '' ;
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
 		
 		if ($this->can_output())
@@ -535,20 +535,20 @@ class WPAlchemy_MetaBox
 
 		if ($this->in_loop)
 		{
-			if(!empty($this->meta[$this->name]))
+			if(isset($this->meta[$this->name]))
 			{
 				$n = is_null($n) ? $this->subname : $n ;
 
 				if(!is_null($n))
 				{
-					if(!empty($this->meta[$this->name][$this->current][$n]))
+					if(isset($this->meta[$this->name][$this->current][$n]))
 					{
 						return $this->meta[$this->name][$this->current][$n];
 					}
 				}
 				else
 				{
-					if(!empty($this->meta[$this->name][$this->current]))
+					if(isset($this->meta[$this->name][$this->current]))
 					{
 						return $this->meta[$this->name][$this->current];
 					}
@@ -559,7 +559,7 @@ class WPAlchemy_MetaBox
 		{
 			$n = is_null($n) ? $this->name : $n ;
 
-			if(!empty($this->meta[$n])) return $this->meta[$n];
+			if(isset($this->meta[$n])) return $this->meta[$n];
 		}
 
 		return NULL;

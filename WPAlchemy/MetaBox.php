@@ -62,7 +62,11 @@ class WPAlchemy_MetaBox
 	var $include_tag;
 	var $include_post_id;
 
+	var $save_filter;
+	var $save_action;
+
 	// private
+
 	var $meta;
 	var $name;
 	var $subname;
@@ -120,12 +124,89 @@ class WPAlchemy_MetaBox
 				}
 			}
 
-			add_action('admin_init',array($this,'init'));
+			add_action('admin_init',array($this,'_init'));
 		}
 		else 
 		{
 			die('Associative array parameters required');
 		}
+	}
+
+	// private
+	function _init()
+	{
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
+		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
+		
+		if ($this->can_output())
+		{
+			foreach ($this->types as $type) 
+			{
+				add_meta_box($this->id . '_metabox', $this->title, array($this,'_setup'), $type, $this->context, $this->priority);
+			}
+
+			add_action('save_post',array($this,'save'));
+
+			if (!empty($this->save_filter))
+			{
+				$this->add_filter('save', $this->save_filter);
+			}
+
+			if (!empty($this->save_action))
+			{
+				$this->add_action('save', $this->save_action);
+			}
+		}
+	}
+
+	// private
+	function _get_filter_tag($tag)
+	{
+		$tag = preg_replace('/^wpalchemy_/i', '', $tag);
+		return 'wpalchemy_' . $tag;
+	}
+
+	function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1)
+	{
+		$tag = $this->_get_filter_tag($tag);
+		add_filter($tag, $function_to_add, $priority, $accepted_args);
+	}
+
+	function has_filter($tag, $function_to_check = false)
+	{
+		$tag = $this->_get_filter_tag($tag);
+		return has_filter($tag, $function_to_check);
+	}
+
+	function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1)
+	{
+		$tag = $this->_get_filter_tag($tag);
+		return remove_filter($tag, $function_to_remove, $priority, $accepted_args);
+	}
+
+	// private
+	function _get_action_tag($tag)
+	{
+		$tag = preg_replace('/^wpalchemy_action_/i', '', $tag);
+		return 'wpalchemy_action_' . $tag;
+	}
+
+	function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1)
+	{
+		$tag = $this->_get_action_tag($tag);
+		add_action($tag, $function_to_add, $priority, $accepted_args);
+	}
+
+	function has_action($tag, $function_to_check = false)
+	{
+		$tag = $this->_get_action_tag($tag);
+		return has_action($tag, $function_to_check);
+	}
+
+	function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1)
+	{
+		$tag = $this->_get_action_tag($tag);
+		return remove_action($tag, $function_to_remove, $priority, $accepted_args);
 	}
 
 	function can_output()
@@ -350,24 +431,7 @@ class WPAlchemy_MetaBox
 	}
 
 	// private
-	function init()
-	{
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
-		
-		if ($this->can_output())
-		{
-			foreach ($this->types as $type) 
-			{
-				add_meta_box($this->id . '_metabox', $this->title, array($this,'setup'), $type, $this->context, $this->priority);
-			}
-
-			add_action('save_post',array($this,'save'));
-		}
-	}
-
-	// private
-	function setup()
+	function _setup()
 	{
 		$this->in_template = TRUE;
 		
@@ -775,6 +839,10 @@ class WPAlchemy_MetaBox
 	 
 		WPAlchemy_MetaBox::clean($new_data);
 
+		// filter: save
+		$tag = $this->_get_filter_tag('save');
+		if ($this->has_filter($tag)) $new_data = apply_filters($tag, $new_data);
+
 		// get current fields, use $real_post_id (used in both modes)
 		$current_fields = get_post_meta($real_post_id, $this->id . '_fields', TRUE);
 
@@ -841,6 +909,10 @@ class WPAlchemy_MetaBox
 				delete_post_meta($post_id, $this->id . '_fields');
 			}
 		}
+
+		// action: save
+		$tag = $this->_get_action_tag('save');
+		if ($this->has_action($tag)) do_action($tag, $new_data);
 
 		return $post_id;
 	}

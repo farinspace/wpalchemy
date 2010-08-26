@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-add_action('admin_head',array('WPAlchemy_MetaBox','setup_special'));
+add_action('admin_head',array('WPAlchemy_MetaBox','_setup_special'));
 
 define('WPALCHEMY_MODE_ARRAY','array');
 define('WPALCHEMY_MODE_EXTRACT','extract');
@@ -132,9 +132,14 @@ class WPAlchemy_MetaBox
 		}
 	}
 
-	// private
+	/**
+	 * Runs on 'admin_init' WordPress action, used to properly call internal WordPress methods
+	 *
+	 * @access	private
+	 */
 	function _init()
 	{
+		// runs only in post.php and post-new.php (this includes pages also)
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
 		
@@ -145,7 +150,7 @@ class WPAlchemy_MetaBox
 				add_meta_box($this->id . '_metabox', $this->title, array($this,'_setup'), $type, $this->context, $this->priority);
 			}
 
-			add_action('save_post',array($this,'save'));
+			add_action('save_post',array($this,'_save'));
 
 			if (!empty($this->save_filter))
 			{
@@ -157,6 +162,30 @@ class WPAlchemy_MetaBox
 				$this->add_action('save', $this->save_action);
 			}
 		}
+	}
+
+	// private
+	function _setup()
+	{
+		$this->in_template = TRUE;
+		
+		// also make current post data available
+		global $post;
+
+		// shortcuts
+		// $this
+		$mb =& $this;
+		$metabox =& $this;
+		$id = $this->id;
+		$meta = $this->the_meta(TRUE);
+
+		// use include because users may want to use once templete for multiple meta boxes
+		include $this->template;
+	 
+		// create a nonce for verification
+		echo '<input type="hidden" name="'. $this->id .'_nonce" value="' . wp_create_nonce($this->id) . '" />';
+
+		$this->in_template = FALSE;
 	}
 
 	// private
@@ -431,31 +460,7 @@ class WPAlchemy_MetaBox
 	}
 
 	// private
-	function _setup()
-	{
-		$this->in_template = TRUE;
-		
-		// also make current post data available
-		global $post;
-
-		// shortcuts
-		// $this
-		$mb =& $this;
-		$metabox =& $this;
-		$id = $this->id;
-		$meta = $this->the_meta(TRUE);
-
-		// users may want to use a templete for multiple meta boxes
-		include $this->template;
-	 
-		// create a nonce for verification
-		echo '<input type="hidden" name="'. $this->id .'_nonce" value="' . wp_create_nonce($this->id) . '" />';
-
-		$this->in_template = FALSE;
-	}
-
-	// private
-	function setup_special()
+	function _setup_special()
 	{
 		// todo: you're assuming people will want to use this exact functionality
 		// consider giving a developer access to change this via hooks/callbacks
@@ -729,7 +734,7 @@ class WPAlchemy_MetaBox
 	{
 		$this->the_meta(TRUE);
 		$this->in_loop = 'multi';
-		return $this->loop($n,$length,2);
+		return $this->_loop($n,$length,2);
 	}
 
 	// depreciated
@@ -737,18 +742,18 @@ class WPAlchemy_MetaBox
 	{
 		$this->the_meta(TRUE);
 		$this->in_loop = 'single';
-		return $this->loop($n,NULL,1);
+		return $this->_loop($n,NULL,1);
 	}
 
 	function have_fields($n,$length=NULL)
 	{
 		$this->the_meta(TRUE);
 		$this->in_loop = 'normal';
-		return $this->loop($n,$length);
+		return $this->_loop($n,$length);
 	}
 
 	// private
-	function loop($n,$length=NULL,$and_one=0)
+	function _loop($n,$length=NULL,$and_one=0)
 	{
 		if (!$this->in_loop)
 		{
@@ -800,7 +805,7 @@ class WPAlchemy_MetaBox
 	}
 
 	// private 
-	function save($post_id) 
+	function _save($post_id) 
 	{
 		/**
 		 * note: the "save_post" action fires for saving revisions and post/pages, 
@@ -916,8 +921,14 @@ class WPAlchemy_MetaBox
 
 		return $post_id;
 	}
-	 
-	// private
+
+	/**
+	 * Cleans an array, removing blank ('') values
+	 *
+	 * @static
+	 * @access	public
+	 * @param	array the array to clean (passed by reference)
+	 */
 	function clean(&$arr)
 	{
 		if (is_array($arr))
@@ -935,7 +946,7 @@ class WPAlchemy_MetaBox
 				}
 				else 
 				{
-					if (trim($arr[$i]) == '') 
+					if ('' == trim($arr[$i]) OR is_null($arr[$i])) 
 					{
 						unset($arr[$i]);
 					}

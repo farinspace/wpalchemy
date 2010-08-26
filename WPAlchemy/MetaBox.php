@@ -479,14 +479,18 @@ class WPAlchemy_MetaBox
 				{
 					e.preventDefault();
 
+					var p = elem.parents('.postbox'); /*wp*/
+
 					var the_name = elem.attr('class').match(/dodelete-([a-zA-Z0-9_-]*)/i);
+
 					the_name = (the_name && the_name[1]) ? the_name[1] : null ;
 
+					/* todo: expose and allow editing of this message */
 					if (confirm('This action can not be undone, are you sure?'))
 					{
 						if (the_name)
 						{
-							$('.wpa_group-'+ the_name).not('.tocopy').remove();
+							$('.wpa_group-'+ the_name, p).not('.tocopy').remove();
 						}
 						else
 						{
@@ -500,9 +504,11 @@ class WPAlchemy_MetaBox
 			{
 				e.preventDefault();
 
+				var p = $(this).parents('.postbox'); /*wp*/
+
 				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
 
-				var the_group = $('.wpa_group-'+ the_name +':first.tocopy');
+				var the_group = $('.wpa_group-'+ the_name +':first.tocopy', p);
 				
 				var the_clone = the_group.clone().removeClass('tocopy');
 
@@ -520,7 +526,7 @@ class WPAlchemy_MetaBox
 
 				if ($(this).hasClass('ontop'))
 				{
-					$('.wpa_group-'+ the_name +':first').before(the_clone);
+					$('.wpa_group-'+ the_name +':first', p).before(the_clone);
 				}
 				else
 				{

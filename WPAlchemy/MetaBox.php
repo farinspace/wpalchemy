@@ -63,6 +63,7 @@ class WPAlchemy_MetaBox
 	var $include_post_id;
 
 	var $save_filter;
+	var $output_filter;
 	var $save_action;
 
 	// private
@@ -143,6 +144,11 @@ class WPAlchemy_MetaBox
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
 		
+		if (!empty($this->output_filter))
+		{
+			$this->add_filter('output', $this->output_filter);
+		}
+
 		if ($this->can_output())
 		{
 			foreach ($this->types as $type) 
@@ -177,7 +183,7 @@ class WPAlchemy_MetaBox
 		$mb =& $this;
 		$metabox =& $this;
 		$id = $this->id;
-		$meta = $this->the_meta(TRUE);
+		$meta = $this->_meta(NULL, TRUE);
 
 		// use include because users may want to use once templete for multiple meta boxes
 		include $this->template;
@@ -191,17 +197,20 @@ class WPAlchemy_MetaBox
 	// private
 	function _get_filter_tag($tag)
 	{
-		$tag = preg_replace('/^wpalchemy_/i', '', $tag);
-		return 'wpalchemy_' . $tag;
+		$prefix = 'wpalchemy_filter_' . $this->id . '_';
+		$prefix = preg_replace('/_+/', '_', $prefix);
+
+		$tag = preg_replace('/^'. $prefix .'/i', '', $tag);
+		return $prefix . $tag;
 	}
 
 	function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1)
 	{
-		$tag = $this->_get_filter_tag($tag);
+		$tag = $this->_get_filter_tag($tag);;
 		add_filter($tag, $function_to_add, $priority, $accepted_args);
 	}
 
-	function has_filter($tag, $function_to_check = false)
+	function has_filter($tag, $function_to_check = FALSE)
 	{
 		$tag = $this->_get_filter_tag($tag);
 		return has_filter($tag, $function_to_check);
@@ -216,8 +225,11 @@ class WPAlchemy_MetaBox
 	// private
 	function _get_action_tag($tag)
 	{
-		$tag = preg_replace('/^wpalchemy_action_/i', '', $tag);
-		return 'wpalchemy_action_' . $tag;
+		$prefix = 'wpalchemy_action_' . $this->id . '_';
+		$prefix = preg_replace('/_+/', '_', $prefix);
+
+		$tag = preg_replace('/^'. $prefix .'/i', '', $tag);
+		return $prefix . $tag;
 	}
 
 	function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1)
@@ -226,7 +238,7 @@ class WPAlchemy_MetaBox
 		add_action($tag, $function_to_add, $priority, $accepted_args);
 	}
 
-	function has_action($tag, $function_to_check = false)
+	function has_action($tag, $function_to_check = FALSE)
 	{
 		$tag = $this->_get_action_tag($tag);
 		return has_action($tag, $function_to_check);
@@ -244,8 +256,8 @@ class WPAlchemy_MetaBox
 		
 		$p_post_id = isset($_POST['post_ID']) ? $_POST['post_ID'] : '' ;
 		$g_post_id = isset($_GET['post']) ? $_GET['post'] : '' ;
-		$post_id = $g_post_id ? $g_post_id : $p_post_id ;
 
+		$post_id = $g_post_id ? $g_post_id : $p_post_id ;
 		$post_id = (!empty($post) AND $post->ID) ? $post->ID : $post_id ;
 
 		if (!empty($this->exclude_template) OR !empty($this->include_template))
@@ -456,6 +468,10 @@ class WPAlchemy_MetaBox
 			}
 		}
 
+		// filter: output (can_output)
+		$tag = $this->_get_filter_tag('output');
+		if ($this->has_filter($tag)) $can_output = apply_filters($tag, $post_id);
+
 		return $can_output;
 	}
 
@@ -538,14 +554,48 @@ class WPAlchemy_MetaBox
 		</script><?php
 	}
 
-	function the_meta($bypass=FALSE)
+	/**
+	 * Gets the meta data for a meta box
+	 *
+	 * @access	public
+	 * @param	int $post_id optional post ID for which to retrieve the meta data
+	 * @return	array
+	 * @since	1.0
+	 * @see		_meta
+	 */
+	function the_meta($post_id = NULL)
 	{
-		global $post;
-		
-		$post_id = $post->ID;
+		return $this->_meta($post_id);
+	}
 
-		// this allows multiple internal calls to the_meta() without having to fetch data everytime
-		if ($bypass AND !empty($this->meta) AND $this->current_post_id == $post_id) return $this->meta;
+	/**
+	 * Gets the meta data for a meta box
+	 *
+	 * Internal method calls will typically bypass the data retrieval
+	 * and will immediately return the current meta data
+	 *
+	 * @access	private
+	 * @param	int $post_id optional post ID for which to retrieve the meta data
+	 * @param	bool $internal optional boolean if internally calling
+	 * @return	array
+	 * @since	1.3
+	 */
+	function _meta($post_id = NULL, $internal = FALSE)
+	{
+		if ($internal AND $this->current_post_id)
+		{
+			$post_id = $this->current_post_id;
+		}
+		
+		if (!is_numeric($post_id))
+		{
+			global $post;
+
+			$post_id = $post->ID;
+		}
+
+		// this allows multiple internal calls to _meta() without having to fetch data everytime
+		if ($internal AND !empty($this->meta) AND $this->current_post_id == $post_id) return $this->meta;
 
 		$this->current_post_id = $post_id;
 
@@ -557,7 +607,7 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($fields as $field)
 				{
-					$field_noprefix = str_replace($this->prefix,'',$field);
+					$field_noprefix = preg_replace('/^' . $this->prefix . '/i', '', $field);
 					$this->meta[$field_noprefix] = get_post_meta($post_id, $field, TRUE);
 				}
 			}
@@ -590,7 +640,7 @@ class WPAlchemy_MetaBox
 		else $this->name = $n;
 	}
 
-	function have_value($n=NULL)
+	function have_value($n = NULL)
 	{
 		if ($this->get_the_value($n)) return TRUE;
 		
@@ -604,7 +654,7 @@ class WPAlchemy_MetaBox
 
 	function get_the_value($n=NULL)
 	{
-		$this->the_meta(TRUE);
+		$this->_meta(NULL, TRUE);
 
 		if ($this->in_loop)
 		{
@@ -738,7 +788,7 @@ class WPAlchemy_MetaBox
 
 	function have_fields_and_multi($n,$length=NULL)
 	{
-		$this->the_meta(TRUE);
+		$this->_meta(NULL, TRUE);
 		$this->in_loop = 'multi';
 		return $this->_loop($n,$length,2);
 	}
@@ -746,14 +796,14 @@ class WPAlchemy_MetaBox
 	// depreciated
 	function have_fields_and_one($n)
 	{
-		$this->the_meta(TRUE);
+		$this->_meta(NULL, TRUE);
 		$this->in_loop = 'single';
 		return $this->_loop($n,NULL,1);
 	}
 
 	function have_fields($n,$length=NULL)
 	{
-		$this->the_meta(TRUE);
+		$this->_meta(NULL, TRUE);
 		$this->in_loop = 'normal';
 		return $this->_loop($n,$length);
 	}

@@ -996,11 +996,6 @@ class WPAlchemy_MetaBox
 	 */
 	function _meta($post_id = NULL, $internal = FALSE)
 	{
-		if ($internal AND $this->current_post_id)
-		{
-			$post_id = $this->current_post_id;
-		}
-		
 		if (!is_numeric($post_id))
 		{
 			global $post;

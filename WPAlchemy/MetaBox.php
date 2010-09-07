@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3
+ * @version		1.3.3
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -29,6 +29,20 @@ define('WPALCHEMY_FIELD_HINT_RADIO', 'radio');
 define('WPALCHEMY_FIELD_HINT_SELECT', 'select');
 
 define('WPALCHEMY_FIELD_HINT_SELECT_MULTIPLE', 'select_multiple');
+
+define('WPALCHEMY_LOCK_TOP', 'top');
+
+define('WPALCHEMY_LOCK_BOTTOM', 'bottom');
+
+define('WPALCHEMY_LOCK_BEFORE_POST_TITLE', 'before_post_title');
+
+define('WPALCHEMY_LOCK_AFTER_POST_TITLE', 'after_post_title');
+
+define('WPALCHEMY_VIEW_START_OPENED', 'opened');
+
+define('WPALCHEMY_VIEW_START_CLOSED', 'closed');
+
+define('WPALCHEMY_VIEW_ALWAYS_OPENED', 'always_opened');
 
 class WPAlchemy_MetaBox
 {
@@ -156,28 +170,6 @@ class WPAlchemy_MetaBox
 	var $hide_editor = FALSE;
 
 	/**
-	 * Used to lock a meta box at top (below the default content editor), this
-	 * option should be used when instantiating the class.
-	 *
-	 * @since	1.3
-	 * @access	public
-	 * @var		bool
-	 * @see		$lock_on_bottom
-	 */
-	var $lock_on_top = FALSE;
-
-	/**
-	 * Used to lock a meta box at bottom, this option should be used when
-	 * instantiating the class.
-	 *
-	 * @since	1.3
-	 * @access	public
-	 * @var		bool
-	 * @see		$lock_on_top
-	 */
-	var $lock_on_bottom = FALSE;
-
-	/**
 	 * Used to hide the meta box title, this option should be used when
 	 * instantiating the class.
 	 *
@@ -187,6 +179,52 @@ class WPAlchemy_MetaBox
 	 * @see		$title
 	 */
 	var $hide_title = FALSE;
+
+	/**
+	 * Used to lock a meta box in place, possible values are: top, bottom, 
+	 * before_post_title, after_post_title, this option should be used when
+	 * instantiating the class.
+	 *
+	 * @since		1.3.3
+	 * @access		public
+	 * @var			string possible values are: top, bottom, before_post_title, after_post_title
+	 */
+	var $lock;
+
+	/**
+	 * Used to lock a meta box at top (below the default content editor), this
+	 * option should be used when instantiating the class.
+	 *
+	 * @deprecated	deprecated since version 1.3.3
+	 * @since		1.3
+	 * @access		public
+	 * @var			bool
+	 * @see			$lock
+	 */
+	var $lock_on_top = FALSE;
+
+	/**
+	 * Used to lock a meta box at bottom, this option should be used when
+	 * instantiating the class.
+	 *
+	 * @deprecated	deprecated since version 1.3.3
+	 * @since		1.3
+	 * @access		public
+	 * @var			bool
+	 * @see			$lock
+	 */
+	var $lock_on_bottom = FALSE;
+
+	/**
+	 * Used to set the initial view state of the meta box, possible values are:
+	 * opened, closed, always_opened, this option should be used when
+	 * instantiating the class.
+	 *
+	 * @since	1.3.3
+	 * @access	public
+	 * @var		string possible values are: opened, closed, always_opened
+	 */
+	var $view;
 
 	// private
 
@@ -258,6 +296,10 @@ class WPAlchemy_MetaBox
 				}
 			}
 
+			// convert depreciated variables
+			if ($this->lock_on_top) $this->lock = WPALCHEMY_LOCK_TOP;
+			elseif ($this->lock_on_bottom) $this->lock = WPALCHEMY_LOCK_BOTTOM;
+			
 			add_action('admin_init', array($this,'_init'));
 
 			add_action('admin_head', array($this,'_head'), 11);
@@ -341,7 +383,7 @@ class WPAlchemy_MetaBox
 
 			?>
 			<style type="text/css">
-				<?php if ($this->hide_editor): ?> #postdivrich { display:none; } <?php endif; ?>
+				<?php if ($this->hide_editor): ?> #postdiv, #postdivrich { display:none; } <?php endif; ?>
 			</style>
 			<?php
 
@@ -377,7 +419,7 @@ class WPAlchemy_MetaBox
 	{
 		$content = NULL;
 
-		if ($this->can_output() AND ($this->lock_on_top OR $this->lock_on_bottom OR $this->hide_title))
+		if ($this->can_output() AND ($this->lock OR $this->hide_title))
 		{
 			ob_start();
 
@@ -388,41 +430,83 @@ class WPAlchemy_MetaBox
 
 				var mb = $('#<?php echo $this->id; ?>_metabox');
 
-				<?php if ($this->lock_on_top): ?>
-				var id = 'wpalchemy-non-sortables-top';
-
+				<?php if (WPALCHEMY_LOCK_TOP == $this->lock): ?>
+				<?php if ('side' == $this->context): ?>
+				var id = 'wpalchemy-side-top';
 				if ( ! $('#'+id).length)
 				{
-					$('<div></div>').attr('id',id).insertBefore('#normal-sortables');
+					$('<div></div>').attr('id',id).prependTo('#side-info-column');
 				}
-
-				$('#'+id).append(mb);
+				<?php else: ?>
+				var id = 'wpalchemy-content-top';
+				if ( ! $('#'+id).length)
+				{
+					$('<div></div>').attr('id',id).insertAfter('#postdiv, #postdivrich');
+				}
 				<?php endif; ?>
-
-				<?php if ($this->lock_on_bottom): ?>
+				$('#'+id).append(mb);
+				<?php elseif (WPALCHEMY_LOCK_BOTTOM == $this->lock): ?>
+				<?php if ('side' == $this->context): ?>
+				var id = 'wpalchemy-side-bottom';
+				if ( ! $('#'+id).length)
+				{
+					$('<div></div>').attr('id',id).appendTo('#side-info-column');
+				}
+				<?php else: ?>
 				if ( ! $('#advanced-sortables').children().length)
 				{
 					$('#advanced-sortables').css('display','none');
 				}
 
-				var id = 'wpalchemy-non-sortables-bottom';
-
+				var id = 'wpalchemy-content-bottom';
 				if ( ! $('#'+id).length)
 				{
 					$('<div></div>').attr('id',id).insertAfter('#advanced-sortables');
 				}
-
+				<?php endif; ?>
+				$('#'+id).append(mb);
+				<?php elseif (WPALCHEMY_LOCK_BEFORE_POST_TITLE == $this->lock): ?>
+				<?php if ('side' != $this->context): ?>
+				var id = 'wpalchemy-content-bpt';
+				if ( ! $('#'+id).length)
+				{
+					$('<div></div>').attr('id',id).prependTo('#post-body-content');
+				}
 				$('#'+id).append(mb);
 				<?php endif; ?>
+				<?php elseif (WPALCHEMY_LOCK_AFTER_POST_TITLE == $this->lock): ?>
+				<?php if ('side' != $this->context): ?>
+				var id = 'wpalchemy-content-apt';
+				if ( ! $('#'+id).length)
+				{
+					$('<div></div>').attr('id',id).insertAfter('#titlediv');
+				}
+				$('#'+id).append(mb);
+				<?php endif; ?>
+				<?php endif; ?>
 
-				<?php if ($this->lock_on_top OR $this->lock_on_bottom): ?>
+				<?php if ( ! empty($this->lock)): ?>
 				$('.hndle', mb).css('cursor','pointer');
 				$('.handlediv', mb).remove();
 				<?php endif; ?>
 
 				<?php if ($this->hide_title): ?>
 				$('.hndle', mb).remove();
+				$('.handlediv', mb).remove();
 				mb.removeClass('closed'); /* start opened */
+				<?php endif; ?>
+
+				<?php if (WPALCHEMY_VIEW_START_OPENED == $this->view): ?>
+				mb.removeClass('closed');
+				<?php elseif (WPALCHEMY_VIEW_START_CLOSED == $this->view): ?>
+				mb.addClass('closed');
+				<?php elseif (WPALCHEMY_VIEW_ALWAYS_OPENED == $this->view): ?>
+				/* todo: need to find a way to add this script block below, load-scripts.php?... */
+				var h3 = mb.children('h3');
+				setTimeout(function(){ h3.unbind('click'); }, 1000);
+				$('.handlediv', mb).remove();
+				mb.removeClass('closed'); /* start opened */
+				$('.hndle', mb).css('cursor','auto');
 				<?php endif; ?>
 
 				mb = null;
@@ -996,7 +1080,7 @@ class WPAlchemy_MetaBox
 	 */
 	function _meta($post_id = NULL, $internal = FALSE)
 	{
-		if (!is_numeric($post_id))
+		if ( ! is_numeric($post_id))
 		{
 			global $post;
 

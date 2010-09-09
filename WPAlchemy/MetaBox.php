@@ -242,7 +242,7 @@ class WPAlchemy_MetaBox
 	 */
 	var $hint;
 
-	var $lenth = 0;
+	var $length = 0;
 	var $current = -1;
 	var $in_loop = FALSE;
 	var $in_template = FALSE;

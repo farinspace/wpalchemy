@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.3
+ * @version		1.3.4
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -89,6 +89,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array
+	 * @param	array $post_id first variable passed to the callback function
 	 * @see		can_output()
 	 */
 	var $output_filter;
@@ -100,6 +101,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array
+	 * @param	array $meta meta box data, first variable passed to the callback function
+	 * @param	string $post_id second variable passed to the callback function
 	 * @see		$save_action, add_filter()
 	 */
 	var $save_filter;
@@ -111,6 +114,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array
+	 * @param	array $meta meta box data, first variable passed to the callback function
+	 * @param	string $post_id second variable passed to the callback function
 	 * @see		$save_filter, add_filter()
 	 */
 	var $save_action;
@@ -122,6 +127,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array
+	 * @param	array $content current head content, first variable passed to the callback function
 	 * @see		$head_action, add_filter()
 	 */
 	var $head_filter;
@@ -144,6 +150,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array
+	 * @param	array $content current foot content, first variable passed to the callback function
 	 * @see		$foot_action, add_filter()
 	 */
 	var $foot_filter;
@@ -225,6 +232,16 @@ class WPAlchemy_MetaBox
 	 * @var		string possible values are: opened, closed, always_opened
 	 */
 	var $view;
+
+	/**
+	 * Used to hide the show/hide checkbox option from the screen options area,
+	 * this option should be used when instantiating the class.
+	 *
+	 * @since		1.3.4
+	 * @access		public
+	 * @var			bool
+	 */
+	var $hide_screen_option = FALSE;
 
 	// private
 
@@ -347,7 +364,14 @@ class WPAlchemy_MetaBox
 
 				if (!empty($this->$var))
 				{
-					$this->add_filter($filter, $this->$var);
+					if ('save' == $filter)
+					{
+						$this->add_filter($filter, $this->$var, 10, 2);
+					}
+					else
+					{
+						$this->add_filter($filter, $this->$var);
+					}
 				}
 			}
 
@@ -359,7 +383,14 @@ class WPAlchemy_MetaBox
 
 				if (!empty($this->$var))
 				{
-					$this->add_action($action, $this->$var);
+					if ('save' == $action)
+					{
+						$this->add_action($action, $this->$var, 10, 2);
+					}
+					else
+					{
+						$this->add_action($action, $this->$var);
+					}
 				}
 			}
 		}
@@ -419,7 +450,16 @@ class WPAlchemy_MetaBox
 	{
 		$content = NULL;
 
-		if ($this->can_output() AND ($this->lock OR $this->hide_title OR $this->view))
+		if
+		(
+				$this->can_output() AND
+				(
+					$this->lock OR
+					$this->hide_title OR
+					$this->view OR
+					$this->hide_screen_option
+				)
+		)
 		{
 			ob_start();
 
@@ -428,7 +468,8 @@ class WPAlchemy_MetaBox
 			/* <![CDATA[ */
 			(function($){ /* not using jQuery ondomready, code runs right away in footer */
 
-				var mb = $('#<?php echo $this->id; ?>_metabox');
+				var mb_id = '<?php echo $this->id; ?>';
+				var mb = $('#' + mb_id + '_metabox');
 
 				<?php if (WPALCHEMY_LOCK_TOP == $this->lock): ?>
 				<?php if ('side' == $this->context): ?>
@@ -507,6 +548,10 @@ class WPAlchemy_MetaBox
 				$('.handlediv', mb).remove();
 				mb.removeClass('closed'); /* start opened */
 				$('.hndle', mb).css('cursor','auto');
+				<?php endif; ?>
+
+				<?php if ($this->hide_screen_option): ?>
+					$('.metabox-prefs label[for='+ mb_id +'_metabox-hide]').remove();
 				<?php endif; ?>
 
 				mb = null;
@@ -618,8 +663,9 @@ class WPAlchemy_MetaBox
 	 */
 	function apply_filters($tag, $value)
 	{
-		$tag = $this->_get_filter_tag($tag);
-		return apply_filters($tag, $value);
+		$args = func_get_args();
+		$args[0] = $this->_get_filter_tag($tag);
+		return call_user_func_array('apply_filters', $args);
 	}
 
 	/**
@@ -700,8 +746,9 @@ class WPAlchemy_MetaBox
 	 */
 	function do_action($tag, $arg = '')
 	{
-		$tag = $this->_get_action_tag($tag);
-		return do_action($tag, $arg);
+		$args = func_get_args();
+		$args[0] = $this->_get_action_tag($tag);
+		return call_user_func_array('do_action', $args);
 	}
 
 	/**
@@ -1655,7 +1702,7 @@ class WPAlchemy_MetaBox
 		// filter: save
 		if ($this->has_filter('save'))
 		{
-			$new_data = $this->apply_filters('save', $new_data);
+			$new_data = $this->apply_filters('save', $new_data, $real_post_id);
 		}
 
 		// get current fields, use $real_post_id (used in both modes)
@@ -1728,7 +1775,7 @@ class WPAlchemy_MetaBox
 		// action: save
 		if ($this->has_action('save'))
 		{
-			$this->do_action('save', $new_data);
+			$this->do_action('save', $new_data, $real_post_id);
 		}
 
 		return $post_id;
@@ -1794,15 +1841,12 @@ class WPAlchemy_MetaBox
 	}
 }
 
-/*
-
-Contributors:
-
-	Suso Guez | http://shambanet.com/
-	http://farinspace.com/wpalchemy-metabox/comment-page-1/#comment-3156
-
-	All who have given their feedback and ideas.
-
-*/
+/**
+ * All who have given their feedback and ideas, including:
+ *
+ * @contributor		Christian Hochfilzer | power user, code testing
+ * @contributor		Adam van den Hoven | provided several useful code ideas/contributions
+ * @contributor		Suso Guez | provided fix for field names with dashes, http://farinspace.com/wpalchemy-metabox/comment-page-1/#comment-3156
+ */
 
 /* End of file */

@@ -419,7 +419,7 @@ class WPAlchemy_MetaBox
 	{
 		$content = NULL;
 
-		if ($this->can_output() AND ($this->lock OR $this->hide_title))
+		if ($this->can_output() AND ($this->lock OR $this->hide_title OR $this->view))
 		{
 			ob_start();
 

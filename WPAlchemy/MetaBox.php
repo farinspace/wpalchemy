@@ -10,6 +10,9 @@
  * @link		http://farinspace.com
  */
 
+// todo: perhaps move _global_head and _global_foot locally, when first run
+// define a constant to prevent other instances from running again ...
+
 add_action('admin_head', array('WPAlchemy_MetaBox', '_global_head'));
 
 add_action('admin_footer', array('WPAlchemy_MetaBox', '_global_foot'));
@@ -351,10 +354,6 @@ class WPAlchemy_MetaBox
 			elseif ($this->lock_on_bottom) $this->lock = WPALCHEMY_LOCK_BOTTOM;
 			
 			add_action('admin_init', array($this,'_init'));
-
-			add_action('admin_head', array($this,'_head'), 11);
-			
-			add_action('admin_footer', array($this,'_foot'), 11);
 		}
 		else 
 		{
@@ -427,6 +426,10 @@ class WPAlchemy_MetaBox
 				}
 			}
 
+			add_action('admin_head', array($this,'_head'), 11);
+
+			add_action('admin_footer', array($this,'_foot'), 11);
+
 			// action: init
 			if ($this->has_action('init'))
 			{
@@ -447,33 +450,30 @@ class WPAlchemy_MetaBox
 	{
 		$content = NULL;
 
-		if ($this->can_output())
+		ob_start();
+
+		?>
+		<style type="text/css">
+			<?php if ($this->hide_editor): ?> #postdiv, #postdivrich { display:none; } <?php endif; ?>
+		</style>
+		<?php
+
+		$content = ob_get_contents();
+
+		ob_end_clean();
+
+		// filter: head
+		if ($this->has_filter('head'))
 		{
-			ob_start();
+			$content = $this->apply_filters('head', $content);
+		}
 
-			?>
-			<style type="text/css">
-				<?php if ($this->hide_editor): ?> #postdiv, #postdivrich { display:none; } <?php endif; ?>
-			</style>
-			<?php
+		echo $content;
 
-			$content = ob_get_contents();
-
-			ob_end_clean();
-			
-			// filter: head
-			if ($this->has_filter('head'))
-			{
-				$content = $this->apply_filters('head', $content);
-			}
-
-			echo $content;
-
-			// action: head
-			if ($this->has_action('head'))
-			{
-				$this->do_action('head');
-			}
+		// action: head
+		if ($this->has_action('head'))
+		{
+			$this->do_action('head');
 		}
 	}
 
@@ -491,13 +491,10 @@ class WPAlchemy_MetaBox
 
 		if
 		(
-			$this->can_output() AND
-			(
-				$this->lock OR
-				$this->hide_title OR
-				$this->view OR
-				$this->hide_screen_option
-			)
+			$this->lock OR
+			$this->hide_title OR
+			$this->view OR
+			$this->hide_screen_option
 		)
 		{
 			ob_start();
@@ -603,20 +600,20 @@ class WPAlchemy_MetaBox
 			$content = ob_get_contents();
 
 			ob_end_clean();
-			
-			// filter: foot
-			if ($this->has_filter('foot'))
-			{
-				$content = $this->apply_filters('foot', $content);
-			}
+		}
+		
+		// filter: foot
+		if ($this->has_filter('foot'))
+		{
+			$content = $this->apply_filters('foot', $content);
+		}
 
-			echo $content;
+		echo $content;
 
-			// action: foot
-			if ($this->has_action('foot'))
-			{
-				$this->do_action('foot');
-			}
+		// action: foot
+		if ($this->has_action('foot'))
+		{
+			$this->do_action('foot');
 		}
 	}
 
@@ -1031,6 +1028,10 @@ class WPAlchemy_MetaBox
 	 */
 	function _global_head()
 	{
+		// runs only in post.php and post-new.php (this includes pages also)
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
+		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
+
 		// todo: you're assuming people will want to use this exact functionality
 		// consider giving a developer access to change this via hooks/callbacks
 
@@ -1714,13 +1715,14 @@ class WPAlchemy_MetaBox
 		 * so in the case that this functionality changes, let it run twice
 		 */
 
-		$real_post_id = $_POST['post_ID'];
+		$real_post_id = isset($_POST['post_ID']) ? $_POST['post_ID'] : NULL ;
 		
 		// check autosave
 		if (defined('DOING_AUTOSAVE') AND DOING_AUTOSAVE AND !$this->autosave) return $post_id;
 	 
 		// make sure data came from our meta box, verify nonce
-		if (!wp_verify_nonce($_POST[$this->id.'_nonce'],$this->id)) return $post_id;
+		$nonce = isset($_POST[$this->id.'_nonce']) ? $_POST[$this->id.'_nonce'] : NULL ;
+		if (!wp_verify_nonce($nonce, $this->id)) return $post_id;
 	 
 		// check user permissions
 		if ($_POST['post_type'] == 'page') 
@@ -1887,9 +1889,9 @@ class WPAlchemy_MetaBox
 }
 
 /**
- * All who have given their feedback and ideas, including:
+ * Thanks to all who have given their feedback and ideas, including:
  *
- * @contributor		Christian Hochfilzer | power user, code testing
+ * @contributor		Christian Hochfilzer | power user, code testing, lots of good questions
  * @contributor		Adam van den Hoven | provided several useful code ideas/contributions
  * @contributor		Suso Guez | provided fix for field names with dashes, http://farinspace.com/wpalchemy-metabox/comment-page-1/#comment-3156
  */

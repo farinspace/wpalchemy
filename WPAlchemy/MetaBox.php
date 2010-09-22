@@ -1008,6 +1008,11 @@ class WPAlchemy_MetaBox
 			}
 		}
 
+		if ( ! in_array(get_post_type($post_id), $this->types))
+		{
+			$can_output = FALSE;
+		}
+
 		// filter: output (can_output)
 		if ($this->has_filter('output'))
 		{
@@ -1169,9 +1174,16 @@ class WPAlchemy_MetaBox
 	{
 		if ( ! is_numeric($post_id))
 		{
-			global $post;
+			if ($internal AND $this->current_post_id)
+			{
+				$post_id = $this->current_post_id;
+			}
+			else
+			{
+				global $post;
 
-			$post_id = $post->ID;
+				$post_id = $post->ID;
+			}
 		}
 
 		// this allows multiple internal calls to _meta() without having to fetch data everytime

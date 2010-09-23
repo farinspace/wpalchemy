@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.4
+ * @version		1.3.5
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -372,7 +372,7 @@ class WPAlchemy_MetaBox
 	{
 		// runs only in post.php and post-new.php (this includes pages also)
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
+		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php') AND !strpos($uri,'page.php') AND !strpos($uri,'page-new.php')) return;
 		
 		if ( ! empty($this->output_filter))
 		{
@@ -1035,7 +1035,7 @@ class WPAlchemy_MetaBox
 	{
 		// runs only in post.php and post-new.php (this includes pages also)
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php')) return;
+		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php') AND !strpos($uri,'page.php') AND !strpos($uri,'page-new.php')) return;
 
 		// todo: you're assuming people will want to use this exact functionality
 		// consider giving a developer access to change this via hooks/callbacks

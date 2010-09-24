@@ -1008,7 +1008,13 @@ class WPAlchemy_MetaBox
 			}
 		}
 
-		if ( ! in_array(get_post_type($post_id), $this->types))
+		// $_GET['post_type'] used with post-new.php and page-new.php
+		$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
+		
+		// get_post_type() works only with existing posts or pages get_post_type($post_id);
+		$post_type = $post_type ? $post_type : get_post_type($post_id) ;
+
+		if (! empty($post_type) AND ! in_array($post_type, $this->types))
 		{
 			$can_output = FALSE;
 		}

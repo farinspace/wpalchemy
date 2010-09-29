@@ -2,12 +2,12 @@
  
 	<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras orci lorem, bibendum in pharetra ac, luctus ut mauris.</p>
  
-	<label>Name</label>
+	<label>Title</label>
  
 	<p>
-		<?php $mb->the_field('name'); ?>
+		<?php $mb->the_field('title'); ?>
 		<input type="text" name="<?php $mb->the_name(); ?>" value="<?php $mb->the_value(); ?>"/>
-		<span>Enter in a name</span>
+		<span>Enter in a title</span>
 	</p>
  
 	<label>Description <span>(optional)</span></label>

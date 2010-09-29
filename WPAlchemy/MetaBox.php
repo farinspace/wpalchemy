@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.6
+ * @version		1.3.7
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -370,9 +370,8 @@ class WPAlchemy_MetaBox
 	 */
 	function _init()
 	{
-		// runs only in post.php and post-new.php (this includes pages also)
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php') AND !strpos($uri,'page.php') AND !strpos($uri,'page-new.php')) return;
+		// must be creating or editing a post or page
+		if ( ! $this->is_post() AND ! $this->is_page()) return;
 		
 		if ( ! empty($this->output_filter))
 		{
@@ -788,6 +787,36 @@ class WPAlchemy_MetaBox
 	}
 
 	/**
+	 * Used to check if creating a new post or editing one
+	 * @since	1.3.7
+	 * @access	public
+	 * @see		is_page()
+	 */
+	function is_post()
+	{
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
+
+		if ($uri AND (strpos($uri,'post.php') OR strpos($uri,'post-new.php'))) return TRUE;
+
+		return FALSE;
+	}
+
+	/**
+	 * Used to check if creating a new page or editing one
+	 * @since	1.3.7
+	 * @access	public
+	 * @see		is_post()
+	 */
+	function is_page()
+	{
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
+		
+		if ($uri AND (strpos($uri, 'page.php') OR strpos($uri, 'page-new.php'))) return TRUE;
+
+		return FALSE;
+	}
+
+	/**
 	 * @since	1.0
 	 */
 	function can_output()
@@ -1039,9 +1068,8 @@ class WPAlchemy_MetaBox
 	 */
 	function _global_head()
 	{
-		// runs only in post.php and post-new.php (this includes pages also)
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-		if ($uri AND !strpos($uri,'post.php') AND !strpos($uri,'post-new.php') AND !strpos($uri,'page.php') AND !strpos($uri,'page-new.php')) return;
+		// must be creating or editing a post or page
+		if ( ! WPAlchemy_MetaBox::is_post() AND ! WPAlchemy_MetaBox::is_page()) return;
 
 		// todo: you're assuming people will want to use this exact functionality
 		// consider giving a developer access to change this via hooks/callbacks
@@ -1078,7 +1106,7 @@ class WPAlchemy_MetaBox
 							elem.parents('.wpa_group').remove();
 						}
 
-						$.wpalchemy.trigger('delete');
+						$.wpalchemy.trigger('wpa_delete');
 					}
 				}
 			});
@@ -1116,7 +1144,7 @@ class WPAlchemy_MetaBox
 					the_group.before(the_clone);
 				}
 
-				$.wpalchemy.trigger('copy', [the_clone]);
+				$.wpalchemy.trigger('wpa_copy', [the_clone]);
 			});
 		});
 		/* ]]> */
@@ -1135,6 +1163,9 @@ class WPAlchemy_MetaBox
 	 */
 	function _global_foot()
 	{
+		// must be creating or editing a post or page
+		if ( ! WPAlchemy_MetaBox::is_post() AND ! WPAlchemy_MetaBox::is_page()) return;
+
 		?>
 		<script type="text/javascript">
 		/* <![CDATA[ */

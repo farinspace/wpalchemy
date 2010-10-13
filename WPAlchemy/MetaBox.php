@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.8
+ * @version		1.3.9
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1970,24 +1970,27 @@ class WPAlchemy_MetaBox
 		{
 			$new_fields = array();
 
-			foreach ($new_data as $k => $v)
+			if (is_array($new_data))
 			{
-				$field = $this->prefix . $k;
-				
-				array_push($new_fields,$field);
-
-				$current_value = get_post_meta($post_id, $field, TRUE);
-
-				$new_value = $new_data[$k];
-
-				if (!empty($current_value))
+				foreach ($new_data as $k => $v)
 				{
-					if (is_null($new_value)) delete_post_meta($post_id,$field);
-					else update_post_meta($post_id,$field,$new_value);
-				}
-				elseif (!is_null($new_value))
-				{
-					add_post_meta($post_id,$field,$new_value,TRUE);
+					$field = $this->prefix . $k;
+					
+					array_push($new_fields,$field);
+
+					$current_value = get_post_meta($post_id, $field, TRUE);
+
+					$new_value = $new_data[$k];
+
+					if (!empty($current_value))
+					{
+						if (is_null($new_value)) delete_post_meta($post_id,$field);
+						else update_post_meta($post_id,$field,$new_value);
+					}
+					elseif (!is_null($new_value))
+					{
+						add_post_meta($post_id,$field,$new_value,TRUE);
+					}
 				}
 			}
 

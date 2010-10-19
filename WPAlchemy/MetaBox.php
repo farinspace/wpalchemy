@@ -82,32 +82,150 @@ class WPAlchemy_MetaBox
 	 */
 	var $template;
 
+	/**
+	 * Used to set the post types that the meta box can appear in, this option 
+	 * should be used when instantiating the class.
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @var		array 
+	 */
 	var $types;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $context = 'normal';
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $priority = 'high';
 	
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $autosave = TRUE;
 
+	/**
+	 * Used to set how the class does its data storage, data will be stored as
+	 * an associative array in a single meta entry in the wp_postmeta table or
+	 * data can be set and individual entries in the wp_postmeta table, the 
+	 * following constants should be used when setting this option, 
+	 * WPALCHEMY_MODE_ARRAY (default) and WPALCHEMY_MODE_EXTRACT, this option
+	 * should be used when instantiating the class.
+	 *
+	 * @since	1.2
+	 * @access	public
+	 * @var		string
+	 */
 	var $mode = WPALCHEMY_MODE_ARRAY;
+
+	/**
+	 * When the mode option is set to WPALCHEMY_MODE_EXTRACT, you have to take
+	 * care to avoid name collisions with other meta entries. Use this option to
+	 * automatically add a prefix to your variables, this option should be used
+	 * when instantiating the class.
+	 *
+	 * @since	1.2
+	 * @access	public
+	 * @var		array
+	 */
 	var $prefix;
 
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $exclude_template;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $exclude_category_id;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $exclude_category;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $exclude_tag_id;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $exclude_tag;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $exclude_post_id;
 
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $include_template;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $include_category_id;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $include_category;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $include_tag_id;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $include_tag;
+
+	/**
+	 * @since	1.0
+	 * @access	public
+	 * @var		bool
+	 */
 	var $include_post_id;
 
 	/**
 	 * Callback used on the WordPress "admin_init" action, the main benefit is 
-	 * that the callback is executed only when the meta box is present, this
+	 * that this callback is executed only when the meta box is present, this
 	 * option should be used when instantiating the class.
 	 *
 	 * @since	1.3.4

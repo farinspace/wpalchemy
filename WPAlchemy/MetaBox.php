@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.7
+ * @version		1.3.8
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1346,26 +1346,29 @@ class WPAlchemy_MetaBox
 
 		$this->current_post_id = $post_id;
 
-		if ($this->mode == WPALCHEMY_MODE_EXTRACT)
-		{
-			$fields = get_post_meta($post_id, $this->id . '_fields', TRUE);
+		// WPALCHEMY_MODE_ARRAY
 
-			if (!empty($fields) AND is_array($fields))
+		$meta = get_post_meta($post_id, $this->id, TRUE);
+
+		// wordpress issue: when exporting, then importing, wp will double serialize the postmeta value
+		if ( ! is_array($meta)) $meta = unserialize($meta);
+
+		// WPALCHEMY_MODE_EXTRACT
+
+		$fields = get_post_meta($post_id, $this->id . '_fields', TRUE);
+
+		if (is_array($fields))
+		{
+			$meta = array();
+			
+			foreach ($fields as $field)
 			{
-				foreach ($fields as $field)
-				{
-					$field_noprefix = preg_replace('/^' . $this->prefix . '/i', '', $field);
-					$this->meta[$field_noprefix] = get_post_meta($post_id, $field, TRUE);
-				}
+				$field_noprefix = preg_replace('/^' . $this->prefix . '/i', '', $field);
+				$meta[$field_noprefix] = get_post_meta($post_id, $field, TRUE);
 			}
 		}
-		else
-		{
-			$this->meta = get_post_meta($post_id, $this->id, TRUE);
 
-			// bug: when exporting then importing from wp, wp will double serialize the postmeta value
-			if (!is_array($this->meta)) $this->meta = unserialize($this->meta);
-		}
+		$this->meta = $meta;
 
 		return $this->meta;
 	}
@@ -1498,7 +1501,7 @@ class WPAlchemy_MetaBox
 	{
 		if (!$this->in_template AND $this->mode == WPALCHEMY_MODE_EXTRACT)
 		{
-			return $this->prefix . str_replace($this->prefix,'',is_null($n) ? $this->name : $n);
+			return $this->prefix . str_replace($this->prefix, '', is_null($n) ? $this->name : $n);
 		}
 
 		if ($this->in_loop)
@@ -1516,7 +1519,10 @@ class WPAlchemy_MetaBox
 			$the_field = $this->id . '[' . $n . ']';
 		}
 		
-		if (WPALCHEMY_FIELD_HINT_SELECT_MULTIPLE == $this->hint) $the_field .= '[]';
+		if (WPALCHEMY_FIELD_HINT_SELECT_MULTIPLE == $this->hint)
+		{
+			$the_field .= '[]';
+		}
 
 		return $the_field;
 	}
@@ -1919,7 +1925,7 @@ class WPAlchemy_MetaBox
 			if (FALSE === $new_data) return $post_id;
 		}
 
-		// get current fields, use $real_post_id (used in both modes)
+		// get current fields, use $real_post_id (checked for in both modes)
 		$current_fields = get_post_meta($real_post_id, $this->id . '_fields', TRUE);
 
 		if ($this->mode == WPALCHEMY_MODE_EXTRACT)

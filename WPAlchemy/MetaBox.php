@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.8
+ * @version		1.3.11
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -489,7 +489,7 @@ class WPAlchemy_MetaBox
 	function _init()
 	{
 		// must be creating or editing a post or page
-		if ( ! $this->is_post() AND ! $this->is_page()) return;
+		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
 		
 		if ( ! empty($this->output_filter))
 		{
@@ -906,32 +906,76 @@ class WPAlchemy_MetaBox
 
 	/**
 	 * Used to check if creating a new post or editing one
+	 *
+	 * @static
 	 * @since	1.3.7
-	 * @access	public
-	 * @see		is_page()
+	 * @access	private
+	 * @return	bool
+	 * @see		_is_page()
 	 */
-	function is_post()
+	function _is_post()
 	{
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-
-		if ($uri AND (strpos($uri,'post.php') OR strpos($uri,'post-new.php'))) return TRUE;
+		if ('post' == WPAlchemy_MetaBox::_is_post_or_page())
+		{
+			return TRUE;
+		}
 
 		return FALSE;
 	}
 
 	/**
 	 * Used to check if creating a new page or editing one
+	 *
+	 * @static
 	 * @since	1.3.7
-	 * @access	public
-	 * @see		is_post()
+	 * @access	private
+	 * @return	bool
+	 * @see		_is_post()
 	 */
-	function is_page()
+	function _is_page()
 	{
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-		
-		if ($uri AND (strpos($uri, 'page.php') OR strpos($uri, 'page-new.php'))) return TRUE;
+		if ('page' == WPAlchemy_MetaBox::_is_post_or_page())
+		{
+			return TRUE;
+		}
 
 		return FALSE;
+	}
+
+	/**
+	 * Used to check if creating or editing a post or page
+	 *
+	 * @static
+	 * @since	1.3.8
+	 * @access	private
+	 * @return	string "post" or "page"
+	 * @see		_is_post(), _is_page()
+	 */
+	function _is_post_or_page()
+	{
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
+
+		$file = basename(parse_url($uri, PHP_URL_PATH));
+
+		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
+		{
+			$post_id = isset($_GET['post']) ? $_GET['post'] : NULL ;
+
+			$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
+
+			$post_type = $post_id ? get_post_type($post_id) : $post_type ;
+
+			if ('page' == $post_type)
+			{
+				return 'page';
+			}
+			else
+			{
+				return 'post';
+			}
+		}
+
+		return NULL;
 	}
 
 	/**
@@ -1155,7 +1199,7 @@ class WPAlchemy_MetaBox
 			}
 		}
 
-		// $_GET['post_type'] used with post-new.php and page-new.php
+		// $_GET['post_type'] used with post-new.php
 		$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
 		
 		// get_post_type() works only with existing posts or pages get_post_type($post_id);
@@ -1187,7 +1231,7 @@ class WPAlchemy_MetaBox
 	function _global_head()
 	{
 		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::is_post() AND ! WPAlchemy_MetaBox::is_page()) return;
+		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
 
 		// todo: you're assuming people will want to use this exact functionality
 		// consider giving a developer access to change this via hooks/callbacks
@@ -1282,7 +1326,7 @@ class WPAlchemy_MetaBox
 	function _global_foot()
 	{
 		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::is_post() AND ! WPAlchemy_MetaBox::is_page()) return;
+		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
 
 		?>
 		<script type="text/javascript">
@@ -1932,24 +1976,27 @@ class WPAlchemy_MetaBox
 		{
 			$new_fields = array();
 
-			foreach ($new_data as $k => $v)
+			if (is_array($new_data))
 			{
-				$field = $this->prefix . $k;
-				
-				array_push($new_fields,$field);
-
-				$current_value = get_post_meta($post_id, $field, TRUE);
-
-				$new_value = $new_data[$k];
-
-				if (!empty($current_value))
+				foreach ($new_data as $k => $v)
 				{
-					if (is_null($new_value)) delete_post_meta($post_id,$field);
-					else update_post_meta($post_id,$field,$new_value);
-				}
-				elseif (!is_null($new_value))
-				{
-					add_post_meta($post_id,$field,$new_value,TRUE);
+					$field = $this->prefix . $k;
+					
+					array_push($new_fields,$field);
+
+					$current_value = get_post_meta($post_id, $field, TRUE);
+
+					$new_value = $new_data[$k];
+
+					if (!empty($current_value))
+					{
+						if (is_null($new_value)) delete_post_meta($post_id,$field);
+						else update_post_meta($post_id,$field,$new_value);
+					}
+					elseif (!is_null($new_value))
+					{
+						add_post_meta($post_id,$field,$new_value,TRUE);
+					}
 				}
 			}
 
@@ -2035,7 +2082,7 @@ class WPAlchemy_MetaBox
 
 			if (!count($arr)) 
 			{
-				$arr = NULL;
+				$arr = array();
 			}
 			else
 			{

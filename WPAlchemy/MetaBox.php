@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.12
+ * @version		1.3.13
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1401,7 +1401,7 @@ class WPAlchemy_MetaBox
 
 		$fields = get_post_meta($post_id, $this->id . '_fields', TRUE);
 
-		if (is_array($fields))
+		if ( ! empty($fields) AND is_array($fields))
 		{
 			$meta = array();
 			
@@ -1957,6 +1957,11 @@ class WPAlchemy_MetaBox
 	 
 		WPAlchemy_MetaBox::clean($new_data);
 
+		if (empty($new_data))
+		{
+			$new_data = NULL;
+		}
+
 		// filter: save
 		if ($this->has_filter('save'))
 		{
@@ -2008,7 +2013,11 @@ class WPAlchemy_MetaBox
 			}
 
 			delete_post_meta($post_id, $this->id . '_fields');
-			add_post_meta($post_id,$this->id . '_fields',$new_fields,TRUE);
+
+			if ( ! empty($new_fields))
+			{
+				add_post_meta($post_id,$this->id . '_fields', $new_fields, TRUE);
+			}
 
 			// keep data tidy, delete values if previously using WPALCHEMY_MODE_ARRAY
 			delete_post_meta($post_id, $this->id);
@@ -2017,10 +2026,16 @@ class WPAlchemy_MetaBox
 		{
 			$current_data = get_post_meta($post_id, $this->id, TRUE);
 			
-			if ($current_data)
+			if (is_array($current_data))
 			{
-				if (is_null($new_data)) delete_post_meta($post_id,$this->id);
-				else update_post_meta($post_id,$this->id,$new_data);
+				if (is_null($new_data))
+				{
+					delete_post_meta($post_id, $this->id);
+				}
+				else
+				{
+					update_post_meta($post_id, $this->id, $new_data);
+				}
 			}
 			elseif (!is_null($new_data))
 			{
@@ -2028,7 +2043,7 @@ class WPAlchemy_MetaBox
 			}
 
 			// keep data tidy, delete values if previously using WPALCHEMY_MODE_EXTRACT
-			if (!empty($current_fields))
+			if (is_array($current_fields))
 			{
 				foreach ($current_fields as $field)
 				{

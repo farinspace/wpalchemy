@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.11
+ * @version		1.3.12
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1879,7 +1879,7 @@ class WPAlchemy_MetaBox
 
 		$this->length = $length;
 
-		if ($and_one)
+		if ($this->in_template AND $and_one)
 		{
 			if ($length == 0)
 			{

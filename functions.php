@@ -1,7 +1,7 @@
 <?php
 
 // custom constant (opposite of TEMPLATEPATH)
-define('_TEMPLATEURL', WP_CONTENT_URL . '/themes/' . basename(TEMPLATEPATH));
+define('_TEMPLATEURL', WP_CONTENT_URL . '/' . stristr(TEMPLATEPATH, 'themes'));
 
 include_once 'WPAlchemy/MetaBox.php';
  

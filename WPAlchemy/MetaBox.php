@@ -2123,12 +2123,4 @@ class WPAlchemy_MetaBox
 	}
 }
 
-/**
- * Thanks to all who have given their feedback and ideas, including:
- *
- * @contributor		Christian Hochfilzer | power user, code testing, lots of good questions
- * @contributor		Adam van den Hoven | provided several useful code ideas/contributions
- * @contributor		Suso Guez | provided fix for field names with dashes, http://farinspace.com/wpalchemy-metabox/comment-page-1/#comment-3156
- */
-
 /* End of file */

@@ -7,8 +7,11 @@ include_once 'WPAlchemy/MetaBox.php';
  
 // include css to style the custom meta boxes, this should be a global
 // stylesheet used by all similar meta boxes
-if (is_admin()) wp_enqueue_style('custom_meta_css', _TEMPLATEURL . '/custom/meta.css');
- 
+if (is_admin()) 
+{
+	wp_enqueue_style('custom_meta_css', _TEMPLATEURL . '/custom/meta.css');
+}
+
 $custom_metabox = new WPAlchemy_MetaBox(array
 (
 	'id' => '_custom_meta', // underscore prefix hides fields from the custom fields area

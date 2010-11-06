@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.13
+ * @version		1.3.14
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -27,10 +27,15 @@ define('WPALCHEMY_FIELD_HINT_TEXTAREA', 'textarea');
 
 define('WPALCHEMY_FIELD_HINT_CHECKBOX', 'checkbox');
 
+define('WPALCHEMY_FIELD_HINT_CHECKBOX_MULTI', 'checkbox_multi');
+
 define('WPALCHEMY_FIELD_HINT_RADIO', 'radio');
 
 define('WPALCHEMY_FIELD_HINT_SELECT', 'select');
 
+define('WPALCHEMY_FIELD_HINT_SELECT_MULTI', 'select_multi');
+
+// depreciated, use WPALCHEMY_FIELD_HINT_SELECT_MULTI instead
 define('WPALCHEMY_FIELD_HINT_SELECT_MULTIPLE', 'select_multiple');
 
 define('WPALCHEMY_LOCK_TOP', 'top');
@@ -1562,8 +1567,15 @@ class WPAlchemy_MetaBox
 
 			$the_field = $this->id . '[' . $n . ']';
 		}
+
+		$hints = array
+		(
+			WPALCHEMY_FIELD_HINT_CHECKBOX_MULTI,
+			WPALCHEMY_FIELD_HINT_SELECT_MULTI,
+			WPALCHEMY_FIELD_HINT_SELECT_MULTIPLE,
+		);
 		
-		if (WPALCHEMY_FIELD_HINT_SELECT_MULTIPLE == $this->hint)
+		if (in_array($this->hint, $hints))
 		{
 			$the_field .= '[]';
 		}

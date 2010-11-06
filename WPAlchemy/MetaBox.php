@@ -1290,15 +1290,20 @@ class WPAlchemy_MetaBox
 				
 				var the_clone = the_group.clone().removeClass('tocopy');
 
+				var the_props = ['name', 'id', 'for'];
+
 				the_group.find('input, textarea, select, button, label').each(function(i,elem)
 				{
-					var the_name = $(elem).attr('name');
-
-					if (undefined != the_name)
+					for (var j = 0; j < the_props.length; j++)
 					{
-						var the_match = the_name.match(/\[(\d+)\]/i);
-						the_name = the_name.replace(the_match[0],'['+(+the_match[1]+1)+']');
-						$(elem).attr('name',the_name);
+						var the_prop = $(elem).attr(the_props[j]);
+
+						if (undefined != the_prop)
+						{
+							var the_match = the_prop.match(/\[(\d+)\]/i);
+							the_prop = the_prop.replace(the_match[0],'['+(+the_match[1]+1)+']');
+							$(elem).attr(the_props[j], the_prop);
+						}
 					}
 				});
 

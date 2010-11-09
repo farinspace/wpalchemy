@@ -78,4 +78,16 @@ class WPAlchemy_Taxonomy
 	}
 }
 
+/* 
+	Sample implementation (delete this on final release):
+
+	include_once 'WPAlchemy/Taxonomy.php';
+
+	$tax = new WPAlchemy_Taxonomy(array
+	(
+		'taxonomy' => 'category',
+		'template' => TEMPLATEPATH . '/custom/custom_tax.php',
+	));
+*/
+
 /* End of file */

@@ -16,6 +16,8 @@ class WPAlchemy_Taxonomy
 
 	var $template;
 
+	var $_prefix = 'wpalchemy_taxonomy_';
+
 	function WPAlchemy_Taxonomy($arr)
 	{
 		if (is_array($arr))
@@ -37,15 +39,42 @@ class WPAlchemy_Taxonomy
 
 	function _init()
 	{
+		// initial direction for saving data thanks to Brad Williams
+		// http://www.strangework.com/2010/07/01/how-to-save-taxonomy-meta-data-as-an-options-array-in-wordpress/
+		
 		add_action('edit_category_form_fields', array($this, '_setup'));
 
 		add_action('add_category', array($this, '_save'));
 		
 		add_action('edit_category', array($this, '_save'));
 
-		//add_action('edited_category ', array($this, '_save'));
+		add_filter('get_term', array($this, '_get_term'));
+	}
 
-		// related article: http://www.strangework.com/2010/07/01/how-to-save-taxonomy-meta-data-as-an-options-array-in-wordpress/
+	function _get_term($term)
+	{
+		if ($this->taxonomy == $term->taxonomy)
+		{
+			$data = get_option($this->_prefix . $this->taxonomy);
+
+			if (isset($data[$term->term_id]))
+			{
+				foreach ($data[$term->term_id] as $n => $v)
+				{
+					// do not overwrite default values
+					if (isset($term->$n))
+					{
+						$term->{'_' . $n} = $v;
+					}
+					else
+					{
+						$term->{$n} = $v;
+					}
+				}
+			}
+		}
+
+		return $term;
 	}
 
 	function _setup($term)
@@ -55,26 +84,102 @@ class WPAlchemy_Taxonomy
 			// shortcuts
 			$tx =& $this;
 			$taxonomy =& $this;
-
-			// recall data
+			// $term
 
 			include $this->template;
 		}
-
-		//var_dump($term);
 	}
 
 	function _save($term_id)
 	{
-		$term = get_term($term_id, $this->taxonomy);
+		$term = get_term($term_id, $this->taxonomy, ARRAY_A);
 
-		// check all post vars, skip keys: "action", "submit", and any starting with "_wp"
-		// possibly also skip "tag_ID", "taxonomy", "name", "slug", "parent", "description"
+		if ($this->taxonomy == $term['taxonomy'])
+		{
+			$new_data = array();
 
-		var_dump($_POST);
+			// reserved field names
+			$keys = array('action', 'submit', 'tag_ID', 'slug', 'name', 'description', 'taxonomy', 'parent');
 
-		//var_dump($term);
-		exit;
+			foreach ($_POST as $n => $v)
+			{
+				if (in_array($n, $keys) OR '_wp' == substr($n, 0, 3)) continue;
+
+				$new_data[$n] = $v;
+			}
+
+			$data = get_option($this->_prefix . $this->taxonomy);
+
+			if ( ! is_array($data)) $data = array();
+
+			$data[$term_id] = $new_data;
+
+			update_option($this->_prefix . $this->taxonomy, $data);
+
+			//echo '<pre>'; var_dump($_POST); echo '</pre>'; exit;
+		}
+	}
+
+	// todo: put this function in a global helper file, function needs array key
+	// preservation flag
+	
+	/**
+	 * Cleans an array, removing blank ('') values
+	 *
+	 * @static
+	 * @since	1.0
+	 * @access	public
+	 * @param	array the array to clean (passed by reference)
+	 */
+	function clean(&$arr)
+	{
+		if (is_array($arr))
+		{
+			foreach ($arr as $i => $v)
+			{
+				if (is_array($arr[$i]))
+				{
+					WPAlchemy_MetaBox::clean($arr[$i]);
+
+					if (!count($arr[$i]))
+					{
+						unset($arr[$i]);
+					}
+				}
+				else
+				{
+					if ('' == trim($arr[$i]) OR is_null($arr[$i]))
+					{
+						unset($arr[$i]);
+					}
+				}
+			}
+
+			if (!count($arr))
+			{
+				$arr = array();
+			}
+			else
+			{
+				$keys = array_keys($arr);
+
+				$is_numeric = TRUE;
+
+				foreach ($keys as $key)
+				{
+					if (!is_numeric($key))
+					{
+						$is_numeric = FALSE;
+						break;
+					}
+				}
+
+				if ($is_numeric)
+				{
+					$arr = array_values($arr);
+				}
+			}
+		}
 	}
 }
 

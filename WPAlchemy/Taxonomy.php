@@ -42,11 +42,11 @@ class WPAlchemy_Taxonomy
 		// initial direction for saving data thanks to Brad Williams
 		// http://www.strangework.com/2010/07/01/how-to-save-taxonomy-meta-data-as-an-options-array-in-wordpress/
 		
-		add_action('edit_category_form_fields', array($this, '_setup'));
+		add_action($this->taxonomy . '_edit_form_fields', array($this, '_setup'));
 
-		add_action('add_category', array($this, '_save'));
+		add_action('add_' . $this->taxonomy, array($this, '_save'));
 		
-		add_action('edit_category', array($this, '_save'));
+		add_action('edit_' . $this->taxonomy, array($this, '_save'));
 
 		add_filter('get_term', array($this, '_get_term'));
 	}

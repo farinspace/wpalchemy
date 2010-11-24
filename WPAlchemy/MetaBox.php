@@ -477,10 +477,28 @@ class WPAlchemy_MetaBox
 			elseif ($this->lock_on_bottom) $this->lock = WPALCHEMY_LOCK_BOTTOM;
 			
 			add_action('admin_init', array($this,'_init'));
+
+			// uses the default wordpress-importer plugin hook
+			add_action('import_post_meta', array($this, '_import'), 10, 3);
 		}
 		else 
 		{
 			die('Associative array parameters required');
+		}
+	}
+
+	/**
+	 * Used to correct double serialized data during post/page export/import
+	 *
+	 * @since	1.3.16
+	 * @access	private
+	 */
+	function _import($post_id, $key, $value)
+	{
+		if (WPALCHEMY_MODE_ARRAY == $this->mode AND $key == $this->id)
+		{
+			// maybe_unserialize fixes a wordpress bug which double serializes already serialized data during export/import
+			update_post_meta($post_id, $key, maybe_unserialize(stripslashes($value)));
 		}
 	}
 
@@ -1298,7 +1316,7 @@ class WPAlchemy_MetaBox
 					{
 						var the_prop = $(elem).attr(the_props[j]);
 
-						if (undefined != the_prop)
+						if (the_prop)
 						{
 							var the_match = the_prop.match(/\[(\d+)\]/i);
 							the_prop = the_prop.replace(the_match[0],'['+(+the_match[1]+1)+']');
@@ -1403,9 +1421,6 @@ class WPAlchemy_MetaBox
 		// WPALCHEMY_MODE_ARRAY
 
 		$meta = get_post_meta($post_id, $this->id, TRUE);
-
-		// wordpress issue: when exporting, then importing, wp will double serialize the postmeta value
-		if ( ! is_array($meta)) $meta = unserialize($meta);
 
 		// WPALCHEMY_MODE_EXTRACT
 
@@ -2042,7 +2057,7 @@ class WPAlchemy_MetaBox
 		else
 		{
 			$current_data = get_post_meta($post_id, $this->id, TRUE);
-			
+
 			if (is_array($current_data))
 			{
 				if (is_null($new_data))

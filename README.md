@@ -11,6 +11,5 @@ You should place these files in your current theme directory:
 * /current_theme_folder/WPAlchemy/MetaBox.php
 * /current_theme_folder/custom/meta.css
 * /current_theme_folder/custom/meta.php
-* /current_theme_folder/custom/meta2.php
 
 [wpalchemy]: http://farinspace.com/wpalchemy-metabox/ "WPAlchemy MetaBox PHP Class"

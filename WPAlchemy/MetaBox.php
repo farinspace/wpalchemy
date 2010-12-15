@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.3.16
+ * @version		1.4
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -424,9 +424,21 @@ class WPAlchemy_MetaBox
 	var $in_template = FALSE;
 	var $group_tag;
 	var $current_post_id;
+
+	/**
+	 * Used to store current loop details, cleared after loop ends
+	 *
+	 * @since	1.4
+	 * @access	private
+	 * @var		stdClass
+	 * @see		have_fields_and_multi(), have_fields()
+	 */
+	var $_loop_data;
 	
 	function WPAlchemy_MetaBox($arr)
 	{
+		$this->_loop_data = new stdClass;
+		
 		$this->meta = array();
 
 		$this->types = array('post', 'page');
@@ -1291,6 +1303,10 @@ class WPAlchemy_MetaBox
 							elem.parents('.wpa_group').remove();
 						}
 
+						the_name = elem.parents('.wpa_group').attr('class').match(/wpa_group-([a-zA-Z0-9_-]*)/i)[1];
+
+						checkLoopLimit(the_name);
+
 						$.wpalchemy.trigger('wpa_delete');
 					}
 				}
@@ -1334,7 +1350,35 @@ class WPAlchemy_MetaBox
 					the_group.before(the_clone);
 				}
 
+				checkLoopLimit(the_name);
+
 				$.wpalchemy.trigger('wpa_copy', [the_clone]);
+			});
+
+			function checkLoopLimit(name)
+			{
+				var elem = $('.docopy-' + name);
+
+				console.log($('.wpa_loop-' + name));
+
+				var the_limit = $('.wpa_loop-' + name).attr('class').match(/wpa_loop_limit-([0-9]*)/i)[1];
+
+				if ($('.wpa_group-' + name).not('.wpa_group.tocopy').length >= the_limit)
+				{
+					elem.hide();
+				}
+				else
+				{
+					elem.show();
+				}
+			}
+			
+			/* do an initial limit check, show or hide buttons */
+			$('[class*=docopy-]').each(function()
+			{
+				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
+
+				checkLoopLimit(the_name);
 			});
 		});
 		/* ]]> */
@@ -1817,24 +1861,37 @@ class WPAlchemy_MetaBox
 	{
 		$this->group_tag = $t;
 
-		$css_class = array('wpa_group','wpa_group-'. $this->name);
+		$loop_open = NULL;
+
+		$loop_open_classes = array('wpa_loop', 'wpa_loop-' . $this->name);
+		
+		$css_class = array('wpa_group', 'wpa_group-'. $this->name);
 
 		if ($this->is_first())
 		{
-			array_push($css_class,'first');
+			array_push($css_class, 'first');
+
+			$loop_open = '<div class="wpa_loop">';
+
+			if (isset($this->_loop_data->limit))
+			{
+				array_push($loop_open_classes, 'wpa_loop_limit-' . $this->_loop_data->limit);
+			}
+
+			$loop_open = '<div class="' . implode(' ', $loop_open_classes) . '">';
 		}
 
 		if ($this->is_last())
 		{
-			array_push($css_class,'last');
+			array_push($css_class, 'last');
 
 			if ($this->in_loop == 'multi')
 			{
-				array_push($css_class,'tocopy');
+				array_push($css_class, 'tocopy');
 			}
 		}
 
-		return '<'. $t .' class="'. implode(' ',$css_class) .'">';
+		return $loop_open . '<' . $t . ' class="'. implode(' ', $css_class) . '">';
 	}
 
 	/**
@@ -1852,21 +1909,44 @@ class WPAlchemy_MetaBox
 	 */
 	function get_the_group_close()
 	{
-		return '</'. $this->group_tag .'>';
+		$loop_close = NULL;
+		
+		if ($this->is_last())
+		{
+			$loop_close = '</div>';
+		}
+		
+		return '</' . $this->group_tag . '>' . $loop_close;
 	}
 
 	/**
 	 * @since	1.1
 	 * @access	public
 	 */
-	function have_fields_and_multi($n,$length=NULL)
+	function have_fields_and_multi($n, $options = NULL)
 	{
+		if (is_array($options))
+		{
+			// use as stdClass object
+			$options = (object)$options;
+			
+			$length = @$options->length;
+
+			$this->_loop_data->limit = @$options->limit;
+		}
+		else
+		{
+			// backward compatibility (bc)
+			$length = $options;
+		}
+
 		$this->_meta(NULL, TRUE);
+
 		$this->in_loop = 'multi';
-		return $this->_loop($n,$length,2);
+
+		return $this->_loop($n, $length, 2);
 	}
 
-	// depreciated
 	/**
 	 * @deprecated
 	 * @since	1.0
@@ -1941,6 +2021,8 @@ class WPAlchemy_MetaBox
 		}
 
 		$this->in_loop = FALSE;
+
+		$this->_loop_data = new stdClass;
 
 		return FALSE;
 	}
@@ -2021,27 +2103,27 @@ class WPAlchemy_MetaBox
 					
 					array_push($new_fields,$field);
 
-					$current_value = get_post_meta($post_id, $field, TRUE);
-
 					$new_value = $new_data[$k];
 
-					if (!empty($current_value))
+					if (is_null($new_value))
 					{
-						if (is_null($new_value)) delete_post_meta($post_id,$field);
-						else update_post_meta($post_id,$field,$new_value);
+						delete_post_meta($post_id, $field);
 					}
-					elseif (!is_null($new_value))
+					else
 					{
-						add_post_meta($post_id,$field,$new_value,TRUE);
+						update_post_meta($post_id, $field, $new_value);
 					}
 				}
 			}
 
 			$diff_fields = array_diff((array)$current_fields,$new_fields);
 
-			foreach ($diff_fields as $field)
+			if (is_array($diff_fields))
 			{
-				delete_post_meta($post_id,$field);
+				foreach ($diff_fields as $field)
+				{
+					delete_post_meta($post_id,$field);
+				}
 			}
 
 			delete_post_meta($post_id, $this->id . '_fields');
@@ -2056,22 +2138,13 @@ class WPAlchemy_MetaBox
 		}
 		else
 		{
-			$current_data = get_post_meta($post_id, $this->id, TRUE);
-
-			if (is_array($current_data))
+			if (is_null($new_data))
 			{
-				if (is_null($new_data))
-				{
-					delete_post_meta($post_id, $this->id);
-				}
-				else
-				{
-					update_post_meta($post_id, $this->id, $new_data);
-				}
+				delete_post_meta($post_id, $this->id);
 			}
-			elseif (!is_null($new_data))
+			else
 			{
-				add_post_meta($post_id,$this->id,$new_data,TRUE);
+				update_post_meta($post_id, $this->id, $new_data);
 			}
 
 			// keep data tidy, delete values if previously using WPALCHEMY_MODE_EXTRACT

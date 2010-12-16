@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4
+ * @version		1.4.1
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1358,8 +1358,6 @@ class WPAlchemy_MetaBox
 			function checkLoopLimit(name)
 			{
 				var elem = $('.docopy-' + name);
-
-				console.log($('.wpa_loop-' + name));
 
 				var the_limit = $('.wpa_loop-' + name).attr('class').match(/wpa_loop_limit-([0-9]*)/i)[1];
 

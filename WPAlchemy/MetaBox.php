@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.1
+ * @version		1.4.2
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1359,15 +1359,20 @@ class WPAlchemy_MetaBox
 			{
 				var elem = $('.docopy-' + name);
 
-				var the_limit = $('.wpa_loop-' + name).attr('class').match(/wpa_loop_limit-([0-9]*)/i)[1];
+				var the_match = $('.wpa_loop-' + name).attr('class').match(/wpa_loop_limit-([0-9]*)/i);
 
-				if ($('.wpa_group-' + name).not('.wpa_group.tocopy').length >= the_limit)
+				if (the_match)
 				{
-					elem.hide();
-				}
-				else
-				{
-					elem.show();
+					var the_limit = the_match[1];
+
+					if ($('.wpa_group-' + name).not('.wpa_group.tocopy').length >= the_limit)
+					{
+						elem.hide();
+					}
+					else
+					{
+						elem.show();
+					}
 				}
 			}
 			

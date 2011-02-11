@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.2
+ * @version		1.4.3
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1881,7 +1881,7 @@ class WPAlchemy_MetaBox
 				array_push($loop_open_classes, 'wpa_loop_limit-' . $this->_loop_data->limit);
 			}
 
-			$loop_open = '<div class="' . implode(' ', $loop_open_classes) . '">';
+			$loop_open = '<div id="wpa_loop-'. $this->name .'" class="' . implode(' ', $loop_open_classes) . '">';
 		}
 
 		if ($this->is_last())

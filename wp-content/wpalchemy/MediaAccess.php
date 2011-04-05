@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2011, Dimas Begunoff, http://farinspace.com/
  * @license  	http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package  	WPAlchemy
- * @version  	0.1
+ * @version  	0.1.1
  * @link     	http://github.com/farinspace/wpalchemy/
  * @link     	http://farinspace.com/
  */
@@ -300,22 +300,27 @@
 
 				jQuery(function($)
 				{
-					var wpalchemy_insert_button_label = null;
+					var wpalchemy_insert_button_label = '';
 
 					var wpalchemy_mediafield_selector = null;
 
 					var wpalchemy_send_to_editor_default = send_to_editor;
 
-					
-
-					send_to_editor = function(imgHtml)
+					send_to_editor = function(html)
 					{
+						clearInterval(interval);
+						
 						if (wpalchemy_mediafield_selector)
 						{
-							var src = imgHtml.match(/src="(.*)" alt=/i);
+							var src = html.match(/src="(.*)" alt=/i);
 							src = (src && src[1]) ? src[1] : '' ;
 
-							$(wpalchemy_mediafield_selector).val(src);
+							var href = html.match(/href='(.*)'/i);
+							href = (href && href[1]) ? href[1] : '' ;
+
+							var url = src ? src : href ;
+
+							$(wpalchemy_mediafield_selector).val(url);
 
 							// reset insert button label
 							setInsertButtonLabel(wpalchemy_insert_button_label);
@@ -324,7 +329,7 @@
 						}
 						else
 						{
-							wpalchemy_send_to_editor_default(imgHtml);
+							wpalchemy_send_to_editor_default(html);
 						}
 
 						tb_remove();
@@ -332,12 +337,12 @@
 
 					function getInsertButtonLabel()
 					{
-						return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').val();
+						return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
 					}
 
 					function setInsertButtonLabel(label)
 					{
-						$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').val(label);
+						$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
 					}
 
 					$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
@@ -353,26 +358,28 @@
 
 						function iframeSetup()
 						{
-							if ($('#TB_iframeContent').length)
+							if ($('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').length)
 							{
-								var tab = $('#TB_iframeContent').contents().get(0).location.href.match(/tab=([a-zA-Z0-9_-]*)&?/i);
-								tab = (tab && tab[1]) ? tab[1] : null ;
-
-								if (('library' == tab || 'gallery' == tab) && $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').length)
+								// run once
+								if ( ! wpalchemy_insert_button_label.length)
 								{
 									wpalchemy_insert_button_label = getInsertButtonLabel();
-
-									setInsertButtonLabel((data && data.label)?data.label:'Insert');
-
-									clearInterval(interval);
 								}
 
+								setInsertButtonLabel((data && data.label)?data.label:'Insert');
+
+								// tab "type" needs a timer in order to properly change the button label
+
+								//clearInterval(interval);
+
+								// setup iframe.load as soon as it becomes available
 								// prevent multiple binds
-								$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
+								//$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
 							}
 						}
 
-						// setup iframe.load as soon as it becomes available
+						clearInterval(interval);
+
 						interval = setInterval(iframeSetup, 500);
 					});
 				});

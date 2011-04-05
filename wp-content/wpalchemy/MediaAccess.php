@@ -1,16 +1,16 @@
 <?php
 
 /**
- * @author		Dimas Begunoff
+ * @author   	Dimas Begunoff
  * @copyright	Copyright (c) 2011, Dimas Begunoff, http://farinspace.com/
- * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
- * @package		WPAlchemy
- * @version		0.1
- * @link		http://github.com/farinspace/wpalchemy
- * @link		http://farinspace.com/
+ * @license  	http://en.wikipedia.org/wiki/MIT_License The MIT License
+ * @package  	WPAlchemy
+ * @version  	0.1
+ * @link     	http://github.com/farinspace/wpalchemy/
+ * @link     	http://farinspace.com/
  */
 
- class WPAlchemy_MediaButton
+ class WPAlchemy_MediaAccess
 {
 	/**
 	 * User defined identifier for the css class name of the HTML button element,
@@ -64,7 +64,7 @@
 	private $tab = null;
 
 	/**
-	 * MediaButton class
+	 * MediaAccess class
 	 *
 	 * @since	0.1
 	 * @access	public
@@ -286,78 +286,100 @@
 	 */
 	public function init()
 	{
-		// include javascript for special functionality
-		?><script type="text/javascript">
-		/* <![CDATA[ */
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
-			jQuery(function($)
-			{
-				var wpalchemy_insert_button_label = null;
+		$file = basename(parse_url($uri, PHP_URL_PATH));
 
-				var wpalchemy_mediafield_selector = null;
+		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
+		{
+			// include javascript for special functionality
+			?><script type="text/javascript">
+			/* <![CDATA[ */
 
-				var wpalchemy_send_to_editor_default = send_to_editor;
+				var interval = null;
 
-				send_to_editor = function(imgHtml)
+				jQuery(function($)
 				{
-					if (wpalchemy_mediafield_selector)
+					var wpalchemy_insert_button_label = null;
+
+					var wpalchemy_mediafield_selector = null;
+
+					var wpalchemy_send_to_editor_default = send_to_editor;
+
+					
+
+					send_to_editor = function(imgHtml)
 					{
-						var src = imgHtml.match(/src="(.*)" alt=/i);
-						src = (src && src[1]) ? src[1] : '' ;
-
-						$(wpalchemy_mediafield_selector).val(src);
-
-						// reset insert button label
-						setInsertButtonLabel(wpalchemy_insert_button_label);
-
-						wpalchemy_mediafield_selector = null;
-					}
-					else
-					{
-						wpalchemy_send_to_editor_default(imgHtml);
-					}
-
-					tb_remove();
-				}
-
-				function getInsertButtonLabel()
-				{
-					return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').val();
-				}
-
-				function setInsertButtonLabel(label)
-				{
-					$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').val(label);
-				}
-
-				$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
-				{
-					var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
-					name = (name && name[1]) ? name[1] : '' ;
-
-					var data = $(this).attr('class').match(/({.*})/i);
-					data = (data && data[1]) ? data[1] : '' ;
-					data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
-
-					wpalchemy_mediafield_selector = '.<?php echo $this->field_class_name; ?>-' + name;
-
-					$('#TB_iframeContent').load(function()
-					{
-						var tab = $(this).contents().get(0).location.href.match(/tab=([a-zA-Z0-9_-]*)&?/i);
-						tab = (tab && tab[1]) ? tab[1] : null ;
-
-						if ('library' == tab || 'gallery' == tab)
+						if (wpalchemy_mediafield_selector)
 						{
-							wpalchemy_insert_button_label = getInsertButtonLabel();
+							var src = imgHtml.match(/src="(.*)" alt=/i);
+							src = (src && src[1]) ? src[1] : '' ;
 
-							setInsertButtonLabel((data && data.label)?data.label:'Insert');
+							$(wpalchemy_mediafield_selector).val(src);
+
+							// reset insert button label
+							setInsertButtonLabel(wpalchemy_insert_button_label);
+
+							wpalchemy_mediafield_selector = null;
 						}
+						else
+						{
+							wpalchemy_send_to_editor_default(imgHtml);
+						}
+
+						tb_remove();
+					}
+
+					function getInsertButtonLabel()
+					{
+						return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').val();
+					}
+
+					function setInsertButtonLabel(label)
+					{
+						$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').val(label);
+					}
+
+					$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
+					{
+						var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
+						name = (name && name[1]) ? name[1] : '' ;
+
+						var data = $(this).attr('class').match(/({.*})/i);
+						data = (data && data[1]) ? data[1] : '' ;
+						data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
+
+						wpalchemy_mediafield_selector = '.<?php echo $this->field_class_name; ?>-' + name;
+
+						function iframeSetup()
+						{
+							if ($('#TB_iframeContent').length)
+							{
+								var tab = $('#TB_iframeContent').contents().get(0).location.href.match(/tab=([a-zA-Z0-9_-]*)&?/i);
+								tab = (tab && tab[1]) ? tab[1] : null ;
+
+								if (('library' == tab || 'gallery' == tab) && $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit]').length)
+								{
+									wpalchemy_insert_button_label = getInsertButtonLabel();
+
+									setInsertButtonLabel((data && data.label)?data.label:'Insert');
+
+									clearInterval(interval);
+								}
+
+								// prevent multiple binds
+								$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
+							}
+						}
+
+						// setup iframe.load as soon as it becomes available
+						interval = setInterval(iframeSetup, 500);
 					});
 				});
-			});
-			
-		/* ]]> */
-		</script><?php
+
+			/* ]]> */
+			</script><?php
+		}
 	}
 }
 

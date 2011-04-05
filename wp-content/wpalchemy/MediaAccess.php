@@ -239,7 +239,7 @@
 		
 		$attr_default = array
 		(
-			'text' => 'Add Media',
+			'label' => 'Add Media',
 			'href' => $this->getButtonLink($tab),
 			'class' => $this->getButtonClass($groupname) . ' button',
 		);
@@ -258,9 +258,9 @@
 
 		$attr = array_merge($attr_default, $attr);
 
-		$text = $attr['text'];
+		$label = $attr['label'];
 
-		unset($attr['text']);
+		unset($attr['label']);
 
 		###
 
@@ -273,7 +273,7 @@
 
 		###
 
-		return '<a ' . implode(' ', $elem_attr) . '>' . $text . '</a>';
+		return '<a ' . implode(' ', $elem_attr) . '>' . $label . '</a>';
 	}
 
 	/**

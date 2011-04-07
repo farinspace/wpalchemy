@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.4
+ * @version		1.4.5
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1322,11 +1322,11 @@ class WPAlchemy_MetaBox
 
 				var the_group = $('.wpa_group-'+ the_name +':first.tocopy', p);
 				
-				var the_clone = the_group.clone().removeClass('tocopy');
+				var the_clone = the_group.clone().removeClass('tocopy last');
 
-				var the_props = ['name', 'id', 'for'];
+				var the_props = ['name', 'id', 'for', 'class'];
 
-				the_group.find('input, textarea, select, button, label').each(function(i,elem)
+				the_group.find('*').each(function(i, elem)
 				{
 					for (var j = 0; j < the_props.length; j++)
 					{
@@ -1338,7 +1338,19 @@ class WPAlchemy_MetaBox
 
 							if (the_match)
 							{
-								the_prop = the_prop.replace(the_match[0],'['+(+the_match[1]+1)+']');
+								the_prop = the_prop.replace(the_match[0],'['+ (+the_match[1]+1) +']');
+
+								$(elem).attr(the_props[j], the_prop);
+							}
+
+							the_match = null;
+
+							// todo: this may prove to be too broad of a search
+							the_match = the_prop.match(/n(\d+)/i);
+
+							if (the_match)
+							{
+								the_prop = the_prop.replace(the_match[0], 'n' + (+the_match[1]+1));
 
 								$(elem).attr(the_props[j], the_prop);
 							}

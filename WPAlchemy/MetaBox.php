@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.5
+ * @version		1.4.6
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -988,6 +988,33 @@ class WPAlchemy_MetaBox
 	 */
 	function _is_post_or_page()
 	{
+		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
+
+		if (isset($post_type))
+		{
+			if ('page' == $post_type)
+			{
+				return 'page';
+			}
+			else
+			{
+				return 'post';
+			}
+		}
+
+		return NULL;
+	}
+
+	/**
+	 * Used to check for the current post type, works when creating or editing a
+	 * new post, page or custom post type.
+	 *
+	 * @static
+	 * @since	1.4.6
+	 * @return	string [custom_post_type], page or post
+	 */
+	function _get_current_post_type()
+	{
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
 		$file = basename(parse_url($uri, PHP_URL_PATH));
@@ -1000,9 +1027,9 @@ class WPAlchemy_MetaBox
 
 			$post_type = $post_id ? get_post_type($post_id) : $post_type ;
 
-			if ('page' == $post_type)
+			if (isset($post_type))
 			{
-				return 'page';
+				return $post_type;
 			}
 			else
 			{
@@ -1234,13 +1261,9 @@ class WPAlchemy_MetaBox
 			}
 		}
 
-		// $_GET['post_type'] used with post-new.php
-		$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
-		
-		// get_post_type() works only with existing posts or pages get_post_type($post_id);
-		$post_type = $post_type ? $post_type : get_post_type($post_id) ;
+		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
 
-		if (! empty($post_type) AND ! in_array($post_type, $this->types))
+		if (isset($post_type) AND ! in_array($post_type, $this->types))
 		{
 			$can_output = FALSE;
 		}

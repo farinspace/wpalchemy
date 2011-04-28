@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.6
+ * @version		1.4.7
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1017,7 +1017,9 @@ class WPAlchemy_MetaBox
 	{
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
-		$file = basename(parse_url($uri, PHP_URL_PATH));
+		$uri_parts = parse_url($uri);
+
+		$file = basename($uri_parts['path']);
 
 		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
 		{

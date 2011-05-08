@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.8
+ * @version		1.4.9
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1612,6 +1612,8 @@ class WPAlchemy_MetaBox
 	{
 		$this->_meta(NULL, TRUE);
 
+		$value = null;
+
 		if ($this->in_loop)
 		{
 			if(isset($this->meta[$this->name]))
@@ -1624,14 +1626,14 @@ class WPAlchemy_MetaBox
 					{
 						if(isset($this->meta[$this->name][$this->current]))
 						{
-							return $this->meta[$this->name][$this->current];
+							$value = $this->meta[$this->name][$this->current];
 						}
 					}
 					else
 					{
 						if(isset($this->meta[$this->name][$this->current][$n]))
 						{
-							return $this->meta[$this->name][$this->current][$n];
+							$value = $this->meta[$this->name][$this->current][$n];
 						}
 					}
 				}
@@ -1641,14 +1643,14 @@ class WPAlchemy_MetaBox
 					{
 						if(isset($this->meta[$this->name]))
 						{
-							return $this->meta[$this->name];
+							$value = $this->meta[$this->name];
 						}
 					}
 					else
 					{
 						if(isset($this->meta[$this->name][$this->current]))
 						{
-							return $this->meta[$this->name][$this->current];
+							$value = $this->meta[$this->name][$this->current];
 						}
 					}
 				}
@@ -1658,10 +1660,20 @@ class WPAlchemy_MetaBox
 		{
 			$n = is_null($n) ? $this->name : $n ;
 
-			if(isset($this->meta[$n])) return $this->meta[$n];
+			if(isset($this->meta[$n]))
+			{
+				$value = $this->meta[$n];
+			}
 		}
 
-		return NULL;
+		if ($this->in_template)
+		{
+			return $value;
+		}
+		else
+		{
+			return do_shortcode($value);
+		}
 	}
 
 	/**

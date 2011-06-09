@@ -320,7 +320,7 @@
 
 							var url = src ? src : href ;
 
-							$(wpalchemy_mediafield_selector).val(url);
+						$(wpalchemy_mediafield_selector).val(url).trigger('wpalchemy_mediafield_change');
 
 							// reset insert button label
 							setInsertButtonLabel(wpalchemy_insert_button_label);

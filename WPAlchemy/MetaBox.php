@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.10
+ * @version		1.4.11
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1672,7 +1672,12 @@ class WPAlchemy_MetaBox
 		}
 		else
 		{
-			return do_shortcode($value);
+			// http://wordpress.org/support/topic/call-function-called-by-embed-shortcode-direct
+			// http://phpdoc.wordpress.org/trunk/WordPress/Embed/WP_Embed.html#run_shortcode
+
+			global $wp_embed;
+
+			return do_shortcode($wp_embed->run_shortcode($value));
 		}
 	}
 

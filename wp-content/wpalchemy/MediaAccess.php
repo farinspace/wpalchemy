@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2011, Dimas Begunoff, http://farinspace.com/
  * @license  	http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package  	WPAlchemy
- * @version  	0.1.1
+ * @version  	0.2
  * @link     	http://github.com/farinspace/wpalchemy/
  * @link     	http://farinspace.com/
  */
@@ -197,9 +197,9 @@
 		// this is set even for new posts/pages
 		global $post_ID; //wp
 
-		$tab = isset($tab) ? $tab : $this->tab ;
+		$tab = ! empty($tab) ? $tab : $this->tab ;
 
-		$tab = isset($tab) ? $tab : 'library' ;
+		$tab = ! empty($tab) ? $tab : 'library' ;
 		
 		return 'media-upload.php?post_id=' . $post_ID . '&tab=' . $tab . '&TB_iframe=1';
 	}
@@ -220,6 +220,24 @@
 		$groupname = isset($groupname) ? $groupname : $this->groupname ;
 		
 		return $this->button_class_name . '-' . $groupname . ' thickbox';
+	}
+
+	/**
+	 * Used to get the CSS class name used for the field element. If
+	 * creating a custom field, this method should be used to get the css class
+	 * name needed for proper functionality.
+	 *
+	 * @since	0.2
+	 * @access	public
+	 * @param	string $groupname name used when pairing a text field and button
+	 * @return	string css class(es)
+	 * @see		getButtonClass(), getField()
+	 */
+	public function getFieldClass($groupname = null)
+	{
+		$groupname = isset($groupname) ? $groupname : $this->groupname ;
+
+		return $this->field_class_name . '-' . $groupname;
 	}
 
 	/**
@@ -300,88 +318,91 @@
 
 				jQuery(function($)
 				{
-					var wpalchemy_insert_button_label = '';
-
-					var wpalchemy_mediafield_selector = null;
-
-					var wpalchemy_send_to_editor_default = send_to_editor;
-
-					send_to_editor = function(html)
+					if (typeof send_to_editor === 'function')
 					{
-						clearInterval(interval);
-						
-						if (wpalchemy_mediafield_selector)
+						var wpalchemy_insert_button_label = '';
+
+						var wpalchemy_mediafield = null;
+
+						var wpalchemy_send_to_editor_default = send_to_editor;
+
+						send_to_editor = function(html)
 						{
-							var src = html.match(/src="(.*)" alt=/i);
-							src = (src && src[1]) ? src[1] : '' ;
+							clearInterval(interval);
 
-							var href = html.match(/href='(.*)'/i);
-							href = (href && href[1]) ? href[1] : '' ;
-
-							var url = src ? src : href ;
-
-							$(wpalchemy_mediafield_selector).val(url);
-
-							// reset insert button label
-							setInsertButtonLabel(wpalchemy_insert_button_label);
-
-							wpalchemy_mediafield_selector = null;
-						}
-						else
-						{
-							wpalchemy_send_to_editor_default(html);
-						}
-
-						tb_remove();
-					}
-
-					function getInsertButtonLabel()
-					{
-						return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
-					}
-
-					function setInsertButtonLabel(label)
-					{
-						$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
-					}
-
-					$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
-					{
-						var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
-						name = (name && name[1]) ? name[1] : '' ;
-
-						var data = $(this).attr('class').match(/({.*})/i);
-						data = (data && data[1]) ? data[1] : '' ;
-						data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
-
-						wpalchemy_mediafield_selector = '.<?php echo $this->field_class_name; ?>-' + name;
-
-						function iframeSetup()
-						{
-							if ($('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').length)
+							if (wpalchemy_mediafield)
 							{
-								// run once
-								if ( ! wpalchemy_insert_button_label.length)
-								{
-									wpalchemy_insert_button_label = getInsertButtonLabel();
-								}
+								var src = html.match(/src="(.*)" alt=/i);
+								src = (src && src[1]) ? src[1] : '' ;
 
-								setInsertButtonLabel((data && data.label)?data.label:'Insert');
+								var href = html.match(/href='(.*)'/i);
+								href = (href && href[1]) ? href[1] : '' ;
 
-								// tab "type" needs a timer in order to properly change the button label
+								var url = src ? src : href ;
 
-								//clearInterval(interval);
+								wpalchemy_mediafield.val(url);
 
-								// setup iframe.load as soon as it becomes available
-								// prevent multiple binds
-								//$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
+								// reset insert button label
+								setInsertButtonLabel(wpalchemy_insert_button_label);
+
+								wpalchemy_mediafield = null;
 							}
+							else
+							{
+								wpalchemy_send_to_editor_default(html);
+							}
+
+							tb_remove();
 						}
 
-						clearInterval(interval);
+						function getInsertButtonLabel()
+						{
+							return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
+						}
 
-						interval = setInterval(iframeSetup, 500);
-					});
+						function setInsertButtonLabel(label)
+						{
+							$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
+						}
+
+						$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
+						{
+							var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
+							name = (name && name[1]) ? name[1] : '' ;
+
+							var data = $(this).attr('class').match(/({.*})/i);
+							data = (data && data[1]) ? data[1] : '' ;
+							data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
+
+							wpalchemy_mediafield = $('.<?php echo $this->field_class_name; ?>-' + name, $(this).closest('.postbox'));
+
+							function iframeSetup()
+							{
+								if ($('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').length)
+								{
+									// run once
+									if ( ! wpalchemy_insert_button_label.length)
+									{
+										wpalchemy_insert_button_label = getInsertButtonLabel();
+									}
+
+									setInsertButtonLabel((data && data.label)?data.label:'Insert');
+
+									// tab "type" needs a timer in order to properly change the button label
+
+									//clearInterval(interval);
+
+									// setup iframe.load as soon as it becomes available
+									// prevent multiple binds
+									//$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
+								}
+							}
+
+							clearInterval(interval);
+
+							interval = setInterval(iframeSetup, 500);
+						});
+					}
 				});
 
 			/* ]]> */

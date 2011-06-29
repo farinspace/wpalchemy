@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.11
+ * @version		1.4.12
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -2170,6 +2170,8 @@ class WPAlchemy_MetaBox
 			 * @since 1.3.4
 			 */
 			if (FALSE === $new_data) return $post_id;
+
+			WPAlchemy_MetaBox::clean($new_data);
 		}
 
 		// get current fields, use $real_post_id (checked for in both modes)

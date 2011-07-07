@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.13
+ * @version		1.4.14
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1666,18 +1666,26 @@ class WPAlchemy_MetaBox
 			}
 		}
 
-		if ($this->in_template)
+		if (is_string($value) || is_numeric($value))
 		{
-			return htmlentities($value, ENT_QUOTES, 'UTF-8');
+			if ($this->in_template)
+			{
+				return htmlentities($value, ENT_QUOTES, 'UTF-8');
+			}
+			else
+			{
+				// http://wordpress.org/support/topic/call-function-called-by-embed-shortcode-direct
+				// http://phpdoc.wordpress.org/trunk/WordPress/Embed/WP_Embed.html#run_shortcode
+
+				global $wp_embed;
+
+				return do_shortcode($wp_embed->run_shortcode($value));
+			}
 		}
 		else
 		{
-			// http://wordpress.org/support/topic/call-function-called-by-embed-shortcode-direct
-			// http://phpdoc.wordpress.org/trunk/WordPress/Embed/WP_Embed.html#run_shortcode
-
-			global $wp_embed;
-
-			return do_shortcode($wp_embed->run_shortcode($value));
+			// value can sometimes be an array
+			return $value;
 		}
 	}
 

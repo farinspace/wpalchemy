@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.12
+ * @version		1.4.13
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1668,7 +1668,7 @@ class WPAlchemy_MetaBox
 
 		if ($this->in_template)
 		{
-			return htmlentities($value, ENT_QUOTES);
+			return htmlentities($value, ENT_QUOTES, 'UTF-8');
 		}
 		else
 		{
@@ -2314,4 +2314,4 @@ class WPAlchemy_MetaBox
 	}
 }
 
-/* End of file */
+/* eof */

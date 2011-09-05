@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2011, Dimas Begunoff, http://farinspace.com/
  * @license  	http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package  	WPAlchemy
- * @version  	0.2
+ * @version  	0.2.1
  * @link     	http://github.com/farinspace/wpalchemy/
  * @link     	http://farinspace.com/
  */
@@ -332,10 +332,10 @@
 
 							if (wpalchemy_mediafield)
 							{
-								var src = html.match(/src="(.*)" alt=/i);
+								var src = html.match(/src=['|"](.*?)['|"] alt=/i);
 								src = (src && src[1]) ? src[1] : '' ;
 
-								var href = html.match(/href='(.*)'/i);
+								var href = html.match(/href=['|"](.*?)['|"]/i);
 								href = (href && href[1]) ? href[1] : '' ;
 
 								var url = src ? src : href ;

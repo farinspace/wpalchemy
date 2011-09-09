@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.14
+ * @version		1.4.15
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1713,9 +1713,9 @@ class WPAlchemy_MetaBox
 		{
 			$n = is_null($n) ? $this->subname : $n ;
 
-			if (!is_null($n)) return $this->id . '[' . $this->name . '][' . $this->current . '][' . $n . ']' ;
+			if (!is_null($n)) $the_field = $this->id . '[' . $this->name . '][' . $this->current . '][' . $n . ']' ;
 
-			$the_field = $this->id . '[' . $this->name . '][' . $this->current . ']' ;	
+			else $the_field = $this->id . '[' . $this->name . '][' . $this->current . ']' ;	
 		}
 		else
 		{
@@ -1730,7 +1730,7 @@ class WPAlchemy_MetaBox
 			WPALCHEMY_FIELD_HINT_SELECT_MULTI,
 			WPALCHEMY_FIELD_HINT_SELECT_MULTIPLE,
 		);
-		
+
 		if (in_array($this->hint, $hints))
 		{
 			$the_field .= '[]';
@@ -1822,13 +1822,13 @@ class WPAlchemy_MetaBox
 	{
 		if (is_null($v))
 		{
-			$the_value = $this->get_the_value(NULL, TRUE);
+			$the_value = $this->get_the_value(NULL);
 
 			$v = $n;
 		}
 		else
 		{
-			$the_value = $this->get_the_value($n, TRUE);
+			$the_value = $this->get_the_value($n);
 		}
 
 		if (is_array($the_value))

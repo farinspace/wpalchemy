@@ -68,6 +68,40 @@
 		<?php $mb->the_field('cb_ex4_cb'); ?>
 		<input type="checkbox" name="<?php $mb->the_name(); ?>" value="xyz"<?php $mb->the_checkbox_state('xyz'); ?>/> xyz<br/>
 
+		<br/>
+		<br/>
+
+		<?php $items = array('a', 'b', 'c'); ?>
+		
+		<?php foreach ($items as $i => $item): ?>
+
+			<!-- because I am not using a while loop with "have_fields()", I must 
+			define the field name with "the_field()", the addition of the field hint
+			"WPALCHEMY_FIELD_HINT_CHECKBOX_MULTI" is used, in this case, to add
+			array brackets "[]" to the field name (cb_ex2[]) -->
+			<?php $mb->the_field('cb_ex5', WPALCHEMY_FIELD_HINT_CHECKBOX_MULTI); ?>
+
+			<input type="checkbox" name="<?php $mb->the_name(); ?>" value="<?php echo $item; ?>"<?php $mb->the_checkbox_state($item); ?>/> <?php echo $item; ?><br/>
+			
+		<?php endforeach; ?>
+
+		<br/>
+		<br/>
+
+		<?php $items = array('a', 'b', 'c'); ?>
+
+		<?php foreach ($items as $i => $item): ?>
+
+			<!-- because I am not using a while loop with "have_fields()", I must 
+			define the field name with "the_field()", the addition of the field hint
+			"WPALCHEMY_FIELD_HINT_CHECKBOX_MULTI" is used, in this case, to add
+			array brackets "[]" to the field name (cb_ex2[]) -->
+			<?php $mb->the_field('cb_ex6', WPALCHEMY_FIELD_HINT_CHECKBOX_MULTI); ?>
+		
+			<input type="checkbox" name="<?php $mb->the_name(); ?>" value="<?php echo $item; ?>"<?php $mb->the_checkbox_state($item); ?>/> <?php echo $item; ?><br/>
+			
+		<?php endforeach; ?>
+
 	<?php $mb->the_group_close(); ?>
 	<?php endwhile; ?>
 

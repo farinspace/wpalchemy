@@ -2159,7 +2159,7 @@ class WPAlchemy_MetaBox
 	 
 		// authentication passed, save data
 	 
-		$new_data = $_POST[$this->id];
+		$new_data = isset( $_POST[$this->id] ) ? $_POST[$this->id] : NULL ;
 	 
 		WPAlchemy_MetaBox::clean($new_data);
 

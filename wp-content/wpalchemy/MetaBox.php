@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.15
+ * @version		1.4.17
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1017,26 +1017,29 @@ class WPAlchemy_MetaBox
 	{
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
-		$uri_parts = parse_url($uri);
-
-		$file = basename($uri_parts['path']);
-
-		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
+		if ( isset( $uri ) )
 		{
-			$post_id = WPAlchemy_MetaBox::_get_post_id();
+			$uri_parts = parse_url($uri);
 
-			$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
+			$file = basename($uri_parts['path']);
 
-			$post_type = $post_id ? get_post_type($post_id) : $post_type ;
-
-			if (isset($post_type))
+			if ($uri AND in_array($file, array('post.php', 'post-new.php')))
 			{
-				return $post_type;
-			}
-			else
-			{
-				// because of the 'post.php' and 'post-new.php' checks above, we can default to 'post'
-				return 'post';
+				$post_id = WPAlchemy_MetaBox::_get_post_id();
+
+				$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
+
+				$post_type = $post_id ? get_post_type($post_id) : $post_type ;
+
+				if (isset($post_type))
+				{
+					return $post_type;
+				}
+				else
+				{
+					// because of the 'post.php' and 'post-new.php' checks above, we can default to 'post'
+					return 'post';
+				}
 			}
 		}
 
@@ -2159,7 +2162,7 @@ class WPAlchemy_MetaBox
 	 
 		// authentication passed, save data
 	 
-		$new_data = $_POST[$this->id];
+		$new_data = isset( $_POST[$this->id] ) ? $_POST[$this->id] : NULL ;
 	 
 		WPAlchemy_MetaBox::clean($new_data);
 

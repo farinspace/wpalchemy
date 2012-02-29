@@ -32,6 +32,15 @@
 	 */
 	public $field_class_name = 'mediafield';
 
+/**
+	 * User defined identifier for the css class name of the HTML hidden field element,
+	 * used when pairing the field and button elements
+	 *
+	 * @since	0.1
+	 * @access	public
+	 * @var		string required
+	 */
+	public $id_field_class_name = 'mediaid';
 	/**
 	 * User defined label for the insert button in the media upload box, this
 	 * can be set once or per field and button pair.
@@ -179,8 +188,49 @@
 		###
 
 		return '<input ' . implode(' ', $elem_attr) . '/>';
-	}
+		}
+	/**
+		 * Used to insert a form field of type "hidden", this should be paired with a
+		 * button element. The name and value attributes are required.
+		 *
+		 * @since	0.1
+		 * @access	public
+		 * @param	array $attr INPUT tag parameters
+		 * @return	HTML
+		 * @see		getButton()
+		 */
+	public function getIdField(array $attr)
+		{
+			$groupname = isset($attr['groupname']) ? $attr['groupname'] : $this->groupname ;
+			
+			$attr_default = array
+			(
+				'type' => 'hidden',
+				'class' => $this->id_field_class_name . '-' . $groupname,
+			);
 
+			###
+
+			if (isset($attr['class']))
+			{
+				$attr['class'] = $attr_default['class'] . ' ' . trim($attr['class']);
+			}
+
+			$attr = array_merge($attr_default, $attr);
+
+			###
+
+			$elem_attr = array();
+
+			foreach ($attr as $n => $v)
+			{
+				array_push($elem_attr, $n . '="' . $v . '"');
+			}
+
+			###
+
+			return '<input ' . implode(' ', $elem_attr) . '/>';
+		}
 	/**
 	 * Used to get the link used for the button element. If creating custom
 	 * buttons, this method should be used to get the link needed for proper
@@ -229,7 +279,7 @@
 	 *
 	 * @since	0.2
 	 * @access	public
-	 * @param	string $groupname name used when pairing a text field and button
+	 * @param	string $groupname name used when pairing a field and button
 	 * @return	string css class(es)
 	 * @see		getButtonClass(), getField()
 	 */
@@ -239,7 +289,23 @@
 
 		return $this->field_class_name . '-' . $groupname;
 	}
+	/**
+	 * Used to get the CSS class name used for the  id field element. If
+	 * creating a custom field, this method should be used to get the css class
+	 * name needed for proper functionality.
+	 *
+	 * @since	0.2
+	 * @access	public
+	 * @param	string $groupname name used when pairing an id field and button
+	 * @return	string css class(es)
+	 * @see		getButtonClass(), getField()
+	 */
+	public function getIdFieldClass($groupname = null)
+	{
+		$groupname = isset($groupname) ? $groupname : $this->groupname ;
 
+		return $this->id_field_class_name . '-' . $groupname;
+	}
 	/**
 	 * Used to insert a WordPress styled button, should be paired with a text
 	 * field element.
@@ -323,6 +389,7 @@
 						var wpalchemy_insert_button_label = '';
 
 						var wpalchemy_mediafield = null;
+						var wpalchemy_mediaidfield = null;
 
 						var wpalchemy_send_to_editor_default = send_to_editor;
 
@@ -340,7 +407,11 @@
 
 								var url = src ? src : href ;
 
+								var mediaID = html.match(/wp-image-(.*)"/i);
+								mediaID = (mediaID && mediaID[1]) ? mediaID[1] : '' ;
 								wpalchemy_mediafield.val(url);
+								wpalchemy_mediaidfield.val(mediaID);
+
 
 								// reset insert button label
 								setInsertButtonLabel(wpalchemy_insert_button_label);
@@ -375,6 +446,7 @@
 							data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
 
 							wpalchemy_mediafield = $('.<?php echo $this->field_class_name; ?>-' + name, $(this).closest('.postbox'));
+							wpalchemy_mediaidfield = $('.<?php echo $this->id_field_class_name; ?>-' + name, $(this).closest('.postbox'));
 
 							function iframeSetup()
 							{

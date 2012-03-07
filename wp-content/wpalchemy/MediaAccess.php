@@ -410,11 +410,8 @@
 								var mediaID = html.match(/wp-image-(.*)"/i);
 								mediaID = (mediaID && mediaID[1]) ? mediaID[1] : '' ;
 								wpalchemy_mediafield.val(url);
-<<<<<<< HEAD
 								wpalchemy_mediaidfield.val(mediaID).trigger('change');
-=======
-								wpalchemy_mediaidfield.val(mediaID);
->>>>>>> 7c0dd3764e901d6020d510b6dca14173cdb56841
+
 
 
 								// reset insert button label

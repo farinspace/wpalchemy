@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.4.17
+ * @version		1.5
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -336,6 +336,16 @@ class WPAlchemy_MetaBox
 	var $hide_editor = FALSE;
 
 	/**
+	 * Used in conjunction with the "hide_editor" option, prevents the media
+	 * buttons from also being hidden.
+	 *
+	 * @since	1.5
+	 * @access	public
+	 * @var		bool optional
+	 */
+	var $use_media_buttons = FALSE;
+	
+	/**
 	 * Used to hide the meta box title, this option should be used when
 	 * instantiating the class.
 	 *
@@ -606,7 +616,7 @@ class WPAlchemy_MetaBox
 
 		?>
 		<style type="text/css">
-			<?php if ($this->hide_editor): ?> #postdiv, #postdivrich { display:none; } <?php endif; ?>
+			<?php if ($this->hide_editor) { ?> #wp-content-editor-container, #post-status-info, <?php if ($this->use_media_buttons) { ?> #content-html, #content-tmce<?php } else { ?> #wp-content-wrap<?php } ?> { display:none; } <?php } ?>
 		</style>
 		<?php
 
@@ -1426,19 +1436,24 @@ class WPAlchemy_MetaBox
 			{
 				var elem = $('.docopy-' + name);
 
-				var the_match = $('.wpa_loop-' + name).attr('class').match(/wpa_loop_limit-([0-9]*)/i);
+				var the_class = $('.wpa_loop-' + name).attr('class');
 
-				if (the_match)
+				if (the_class)
 				{
-					var the_limit = the_match[1];
+					var the_match = the_class.match(/wpa_loop_limit-([0-9]*)/i);
 
-					if ($('.wpa_group-' + name).not('.wpa_group.tocopy').length >= the_limit)
+					if (the_match)
 					{
-						elem.hide();
-					}
-					else
-					{
-						elem.show();
+						var the_limit = the_match[1];
+
+						if ($('.wpa_group-' + name).not('.wpa_group.tocopy').length >= the_limit)
+						{
+							elem.hide();
+						}
+						else
+						{
+							elem.show();
+						}
 					}
 				}
 			}

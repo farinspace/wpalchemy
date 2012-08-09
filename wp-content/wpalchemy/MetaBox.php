@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.5
+ * @version		1.5.1
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -510,7 +510,9 @@ class WPAlchemy_MetaBox
 	}
 
 	/**
-	 * Used to correct double serialized data during post/page export/import
+	 * Used to correct double serialized data during post/page export/import,
+	 * additionally will try to fix corrupted serialized data by recalculating
+	 * string length values
 	 *
 	 * @since	1.3.16
 	 * @access	private
@@ -519,8 +521,29 @@ class WPAlchemy_MetaBox
 	{
 		if (WPALCHEMY_MODE_ARRAY == $this->mode AND $key == $this->id)
 		{
-			// maybe_unserialize fixes a wordpress bug which double serializes already serialized data during export/import
-			update_post_meta($post_id, $key, maybe_unserialize(stripslashes($value)));
+			// using $wp_import to get access to the raw postmeta data prior to it getting passed
+			// through "maybe_unserialize()" in "plugins/wordpress-importer/wordpress-importer.php"
+			// the "import_post_meta" action is called after "maybe_unserialize()"
+			
+			global $wp_import;
+
+			foreach ( $wp_import->posts as $post )
+			{
+				if ( $post_id == $post['post_id'] )
+				{
+					foreach( $post['postmeta'] as $meta )
+					{
+						if ( $key == $meta['key'] )
+						{
+							// try to fix corrupted serialized data, specifically "\r\n" being converted to "\n" during wordpress XML export (WXR)
+							// "maybe_unserialize()" fixes a wordpress bug which double serializes already serialized data during export/import
+							$value = maybe_unserialize( preg_replace( '!s:(\d+):"(.*?)";!es', "'s:'.strlen('$2').':\"$2\";'", stripslashes( $meta['value'] ) ) );
+							
+							update_post_meta( $post_id, $key,  $value );
+						}
+					}
+				}
+			}
 		}
 	}
 

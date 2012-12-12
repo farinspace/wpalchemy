@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.5.1
+ * @version		1.5.2
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
@@ -1385,10 +1385,17 @@ class WPAlchemy_MetaBox
 						{
 							elem.parents('.wpa_group').remove();
 						}
+						
+						var the_group = elem.parents('.wpa_group');
+						
+						if(the_group && the_group.attr('class'))
+						{
+							the_name = the_group.attr('class').match(/wpa_group-([a-zA-Z0-9_-]*)/i);
 
-						the_name = elem.parents('.wpa_group').attr('class').match(/wpa_group-([a-zA-Z0-9_-]*)/i)[1];
+							the_name = (the_name && the_name[1]) ? the_name[1] : null ;
 
-						checkLoopLimit(the_name);
+							checkLoopLimit(the_name);
+						}
 
 						$.wpalchemy.trigger('wpa_delete');
 					}
@@ -1403,8 +1410,8 @@ class WPAlchemy_MetaBox
 
 				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
 
-				var the_group = $('.wpa_group-'+ the_name +':first.tocopy', p);
-				
+				var the_group = $('.wpa_group-'+ the_name +'.tocopy', p).first();
+
 				var the_clone = the_group.clone().removeClass('tocopy last');
 
 				var the_props = ['name', 'id', 'for', 'class'];
@@ -1443,7 +1450,7 @@ class WPAlchemy_MetaBox
 
 				if ($(this).hasClass('ontop'))
 				{
-					$('.wpa_group-'+ the_name +':first', p).before(the_clone);
+					$('.wpa_group-'+ the_name, p).first().before(the_clone);
 				}
 				else
 				{

@@ -1647,9 +1647,12 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	function the_value($n = NULL)
+	function the_value($n = NULL, $return = false)
 	{
-		echo $this->get_the_value($n);
+                if($return)
+                    return $this->get_the_value($n);
+                else
+		    echo $this->get_the_value($n);
 	}
 
 	/**

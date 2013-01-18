@@ -1649,10 +1649,10 @@ class WPAlchemy_MetaBox
 	 */
 	function the_value($n = NULL, $return = false)
 	{
-                if($return)
-                    return $this->get_the_value($n);
-                else
-		    echo $this->get_the_value($n);
+		if($return)
+			return $this->get_the_value($n);
+		else
+			echo $this->get_the_value($n);
 	}
 
 	/**

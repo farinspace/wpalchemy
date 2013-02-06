@@ -339,6 +339,7 @@
 									href = html.match(/href=['|"](.*?)['|"]/i),
 
 									url
+								;
 
 								src = ( src && src[ 1 ] ) ? src[ 1 ] : '';
 								href = ( href && href[ 1 ] ) ? href[ 1 ] : '';
@@ -406,7 +407,7 @@
 						// Checks to see if the iframe has been added to the DOM
 						// Once the iframe is added, we trigger the 'ma:frame:loaded' event on the document object.
 						//
-						// Triggered by $doc publish event 'ma:frame:check_loaded'
+						// Triggered by $doc publish event: 'ma:frame:check_loaded'
 						//
 						function checkFrameLoaded() {
 								

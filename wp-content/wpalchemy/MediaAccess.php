@@ -79,10 +79,45 @@
 
 		if ( ! defined('WPALCHEMY_SEND_TO_EDITOR_ENABLED'))
 		{
+			// Ensure the media upload scripts and styles are added
+			add_action( "admin_print_scripts", array( $this, "enqueueAdminScripts") );
+			// Ensure send to editor button is added.
+			add_filter( "get_media_item_args", array( $this, "getMediaItemArgs" ) );
+			// Initialize the footer script
 			add_action('admin_footer', array($this, 'init'));
 
 			define('WPALCHEMY_SEND_TO_EDITOR_ENABLED', true);
 		}
+		
+		
+	}
+
+	/**
+	 * Used to ensure the Insert button is added to media upload panel
+	 * in case the editor isn't present on the screen.
+	 *
+	 * @since 0.2.1
+	 * @access public
+	 * @param array $args Arguments for media upload
+	 * @return $args
+	 */
+	function getMediaItemArgs( $args ) {
+		$args['send'] = true;
+		return $args;
+	}
+
+	/**
+	 * Used to enqueue media upload scripts
+	 * in case the editor isn't present on the screen.
+	 *
+	 * @since 0.2.1
+	 * @access public
+	 */
+	public function enqueueAdminScripts() 
+	{
+		wp_enqueue_style('thickbox');
+		wp_enqueue_script('media-upload');
+		wp_enqueue_script('thickbox');
 	}
 
 	/**
@@ -259,12 +294,12 @@
 		(
 			'label' => 'Add Media',
 			'href' => $this->getButtonLink($tab),
-			'class' => $this->getButtonClass($groupname) . ' button',
+			'class' => $this->getButtonClass($groupname) . ' button'
 		);
 
 		if (isset($this->insert_button_label))
 		{
-			$attr_default['class'] .= " {label:'" . $this->insert_button_label . "'}";
+			$attr_default['data-button-label'] = $this->insert_button_label;
 		}
 
 		###
@@ -314,36 +349,42 @@
 			?><script type="text/javascript">
 			/* <![CDATA[ */
 
-				var interval = null;
-
-				jQuery(function($)
+				jQuery( function( $ )
 				{
-					if (typeof send_to_editor === 'function')
+
+					if ( typeof send_to_editor === 'function' )
 					{
-						var wpalchemy_insert_button_label = '';
+						var wpalchemy_insert_button_label = '',
 
-						var wpalchemy_mediafield = null;
+						 	wpalchemy_mediafield = null,
 
-						var wpalchemy_send_to_editor_default = send_to_editor;
+						 	wpalchemy_send_to_editor_default = send_to_editor,
 
-						send_to_editor = function(html)
+						 	$trigger, // We'll be setting this during the button's 'click' event.
+
+						 	$doc = $( document ) // Global caching of document element, we'll bind to it.
+						 ;
+
+						send_to_editor = function( html )
 						{
-							clearInterval(interval);
-
-							if (wpalchemy_mediafield)
+							if ( wpalchemy_mediafield )
 							{
-								var src = html.match(/src=['|"](.*?)['|"] alt=/i);
-								src = (src && src[1]) ? src[1] : '' ;
+								var src = html.match(/src=['|"](.*?)['|"] alt=/i),
+								
+									href = html.match(/href=['|"](.*?)['|"]/i),
 
-								var href = html.match(/href=['|"](.*?)['|"]/i);
-								href = (href && href[1]) ? href[1] : '' ;
+									url
+								;
 
-								var url = src ? src : href ;
+								src = ( src && src[ 1 ] ) ? src[ 1 ] : '';
+								href = ( href && href[ 1 ] ) ? href[ 1 ] : '';
+								url = src || href;
 
 								wpalchemy_mediafield.val(url);
 
 								// reset insert button label
-								setInsertButtonLabel(wpalchemy_insert_button_label);
+								// NOTE: Not sure why this would be necessary?
+								//setInsertButtonLabel( wpalchemy_insert_button_label );
 
 								wpalchemy_mediafield = null;
 							}
@@ -355,54 +396,137 @@
 							tb_remove();
 						}
 
-						function getInsertButtonLabel()
-						{
-							return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
+
+						/**
+						 * Returns the triggered elements label
+						 */
+						function getTriggerLabel() {
+
+								// Get the data button-label property.
+							var label = $trigger.data( "button-label" );
+							
+							//
+							// If the label is set, return the label, otherwise return "Insert"
+							//
+							return ( label ) ? label : "Insert"; 
 						}
 
-						function setInsertButtonLabel(label)
+						function getInsertButtonLabel( $tbFrame )
 						{
-							$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
+							return $tbFrame.contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
 						}
 
-						$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
+						function setInsertButtonLabel( $tbFrame, label )
 						{
-							var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
-							name = (name && name[1]) ? name[1] : '' ;
+							$tbFrame.contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val( label );
+						}
 
-							var data = $(this).attr('class').match(/({.*})/i);
-							data = (data && data[1]) ? data[1] : '' ;
-							data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
+						function iframeSetup( e, $tbFrame )
+						{
 
-							wpalchemy_mediafield = $('.<?php echo $this->field_class_name; ?>-' + name, $(this).closest('.postbox'));
-
-							function iframeSetup()
+							if ( $tbFrame.contents().find('.media-item .savesend input[type=submit], #insertonlybutton').length )
 							{
-								if ($('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').length)
+								// run once
+								if ( ! wpalchemy_insert_button_label.length )
 								{
-									// run once
-									if ( ! wpalchemy_insert_button_label.length)
-									{
-										wpalchemy_insert_button_label = getInsertButtonLabel();
-									}
-
-									setInsertButtonLabel((data && data.label)?data.label:'Insert');
-
-									// tab "type" needs a timer in order to properly change the button label
-
-									//clearInterval(interval);
-
-									// setup iframe.load as soon as it becomes available
-									// prevent multiple binds
-									//$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
+									wpalchemy_insert_button_label = getInsertButtonLabel( $tbFrame );
 								}
+
+								setInsertButtonLabel( $tbFrame, getTriggerLabel() );
+							
 							}
 
-							clearInterval(interval);
+						}
 
-							interval = setInterval(iframeSetup, 500);
-						});
+						//
+						// Checks to see if the iframe has been added to the DOM
+						// Once the iframe is added, we trigger the 'ma:frame:loaded' event on the document object.
+						//
+						// Triggered by $doc publish event: 'ma:frame:check_loaded'
+						//
+						function checkFrameLoaded() {
+								
+							var $tbFrame = $( '#TB_iframeContent' );
+							
+							// Verify if we have an iframe								
+							if( !$tbFrame || $tbFrame.length === 0 ) { 
+								//
+								// No iframe found, try again.
+								// Trigger the 'ma:frame:check_loaded' event, which will recurse to this function.
+								//
+								// Delay the trigger, to avoid overflooding of the publish stack.
+								setTimeout( function() {
+									$doc.trigger( "ma:frame:check_loaded" );	
+								}, 0 )
+								
+								return;
+							}
+
+							// We found the iFrame in the dom. 
+							// Bind the 'load' event to the iframe.
+							// 
+							// This is really to help us handle any reloading that occours within the iframe. 
+							// For example: clicking between tabs, filtering or searching.
+							//
+							// Triggers the 'ma:frame:loaded' event.
+							$tbFrame.on( "load", function() {
+							
+								// Everytime the iframe loads,
+								// Trigger the 'ma:frame:loaded' event.
+								// We're passing the $tbFrame (iframe) element to the bound functions
+								//
+								$doc.trigger( "ma:frame:loaded", [ $tbFrame ] );
+							
+							} );
+							
+							//
+							// Since we found the iframe, we can trigger the 'ma:frame:loaded' event
+							// This should trigger the iframeSetup function.
+							// We're passing the $tbFrame (iframe) element to the bound functions
+							//
+							$doc.trigger( "ma:frame:loaded", [ $tbFrame ] );
+							
+						}
+
+						/** 
+						 * Delegated Event handler for the MediaAccess button.
+						 */
+						function show_frame( e ) {
+							
+							e.preventDefault();
+							
+							var $this = $trigger = $( this ),
+
+								name = $this.attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i)
+							;
+							
+							name = ( name && name[1] ) ? name[1] : '' ;
+
+							wpalchemy_mediafield = $('.<?php echo $this->field_class_name; ?>-' + name, $this.closest('.postbox') );
+
+							// Let's start checking for the iframe.
+							$doc.trigger( "ma:frame:check_loaded" );
+
+						}
+
+						// Bind to the document click event,
+						// Delegate the event to MediaAccess' button class.
+						$doc.on( 'click', '[class*=<?php echo $this->button_class_name; ?>]', show_frame )
+				
+							// Bind the ma:frame:loaded event. 
+							// Triggered when iframe is first loaded, and on it's load events
+							//
+							.on( "ma:frame:loaded", iframeSetup )
+				
+							//
+							// This event will help us verify when the iframe has been loaded to the dom.
+							//
+							.on( "ma:frame:check_loaded", checkFrameLoaded )
+						;
+						
+
 					}
+
 				});
 
 			/* ]]> */

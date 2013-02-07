@@ -79,10 +79,45 @@
 
 		if ( ! defined('WPALCHEMY_SEND_TO_EDITOR_ENABLED'))
 		{
+			// Ensure the media upload scripts and styles are added
+			add_action( "admin_print_scripts", array( $this, "enqueueAdminScripts") );
+			// Ensure send to editor button is added.
+			add_filter( "get_media_item_args", array( $this, "getMediaItemArgs" ) );
+			// Initialize the footer script
 			add_action('admin_footer', array($this, 'init'));
 
 			define('WPALCHEMY_SEND_TO_EDITOR_ENABLED', true);
 		}
+		
+		
+	}
+
+	/**
+	 * Used to ensure the Insert button is added to media upload panel
+	 * in case the editor isn't present on the screen.
+	 *
+	 * @since 0.2.1
+	 * @access public
+	 * @param array $args Arguments for media upload
+	 * @return $args
+	 */
+	function getMediaItemArgs( $args ) {
+		$args['send'] = true;
+		return $args;
+	}
+
+	/**
+	 * Used to enqueue media upload scripts
+	 * in case the editor isn't present on the screen.
+	 *
+	 * @since 0.2.1
+	 * @access public
+	 */
+	public function enqueueAdminScripts() 
+	{
+		wp_enqueue_style('thickbox');
+		wp_enqueue_script('media-upload');
+		wp_enqueue_script('thickbox');
 	}
 
 	/**
@@ -316,6 +351,7 @@
 
 				jQuery( function( $ )
 				{
+
 					if ( typeof send_to_editor === 'function' )
 					{
 						var wpalchemy_insert_button_label = '',
@@ -331,7 +367,6 @@
 
 						send_to_editor = function( html )
 						{
-							
 							if ( wpalchemy_mediafield )
 							{
 								var src = html.match(/src=['|"](.*?)['|"] alt=/i),
@@ -412,7 +447,7 @@
 						function checkFrameLoaded() {
 								
 							var $tbFrame = $( '#TB_iframeContent' );
-									
+							
 							// Verify if we have an iframe								
 							if( !$tbFrame || $tbFrame.length === 0 ) { 
 								//
@@ -462,9 +497,7 @@
 							
 							var $this = $trigger = $( this ),
 
-								name = $this.attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i),
-							
-								buttonLabel = $this.data( 'button-label' )
+								name = $this.attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i)
 							;
 							
 							name = ( name && name[1] ) ? name[1] : '' ;
@@ -478,7 +511,7 @@
 
 						// Bind to the document click event,
 						// Delegate the event to MediaAccess' button class.
-						$doc.on( 'click.ma:button:clicked', '[class*=<?php echo $this->button_class_name; ?>]', show_frame )
+						$doc.on( 'click', '[class*=<?php echo $this->button_class_name; ?>]', show_frame )
 				
 							// Bind the ma:frame:loaded event. 
 							// Triggered when iframe is first loaded, and on it's load events
@@ -491,7 +524,9 @@
 							.on( "ma:frame:check_loaded", checkFrameLoaded )
 						;
 						
+
 					}
+
 				});
 
 			/* ]]> */

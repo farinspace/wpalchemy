@@ -572,6 +572,10 @@ class WPAlchemy_MetaBox
 			}
 
 			add_action('save_post', array($this,'_save'));
+			
+			// Save meta for "attachment" post type
+			add_action('edit_attachment', array($this,'_save'));
+			add_action('add_attachment', array($this,'_save'));
 
 			$filters = array('save', 'head', 'foot');
 

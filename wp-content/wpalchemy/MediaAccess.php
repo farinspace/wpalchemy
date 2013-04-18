@@ -291,7 +291,7 @@
 
 		###
 
-		return '<a ' . implode(' ', $elem_attr) . '>' . $label . '</a>';
+		return '<input type="button" ' . implode(' ', $elem_attr) . ' value="' .$label. '" />';
 	}
 
 	/**
@@ -314,8 +314,6 @@
 			?><script type="text/javascript">
 			/* <![CDATA[ */
 
-				var interval = null;
-
 				jQuery(function($)
 				{
 					if (typeof send_to_editor === 'function')
@@ -323,38 +321,13 @@
 						var wpalchemy_insert_button_label = '';
 
 						var wpalchemy_mediafield = null;
-
-						var wpalchemy_send_to_editor_default = send_to_editor;
-
-						send_to_editor = function(html)
-						{
-							clearInterval(interval);
-
-							if (wpalchemy_mediafield)
-							{
-								var src = html.match(/src=['|"](.*?)['|"] alt=/i);
-								src = (src && src[1]) ? src[1] : '' ;
-
-								var href = html.match(/href=['|"](.*?)['|"]/i);
-								href = (href && href[1]) ? href[1] : '' ;
-
-								var url = src ? src : href ;
-
-								wpalchemy_mediafield.val(url);
-
-								// reset insert button label
-								setInsertButtonLabel(wpalchemy_insert_button_label);
-
-								wpalchemy_mediafield = null;
-							}
-							else
-							{
-								wpalchemy_send_to_editor_default(html);
-							}
-
-							tb_remove();
-						}
-
+						
+						//Create WP media frame.
+						
+						var customMediaManager;
+						
+						var formlabel = 0;
+						
 						function getInsertButtonLabel()
 						{
 							return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
@@ -365,43 +338,42 @@
 							$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
 						}
 
-						$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
+						$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function(e)
 						{
-							var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
-							name = (name && name[1]) ? name[1] : '' ;
-
-							var data = $(this).attr('class').match(/({.*})/i);
-							data = (data && data[1]) ? data[1] : '' ;
-							data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
-
-							wpalchemy_mediafield = $('.<?php echo $this->field_class_name; ?>-' + name, $(this).closest('.postbox'));
-
-							function iframeSetup()
-							{
-								if ($('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').length)
-								{
-									// run once
-									if ( ! wpalchemy_insert_button_label.length)
-									{
-										wpalchemy_insert_button_label = getInsertButtonLabel();
-									}
-
-									setInsertButtonLabel((data && data.label)?data.label:'Insert');
-
-									// tab "type" needs a timer in order to properly change the button label
-
-									//clearInterval(interval);
-
-									// setup iframe.load as soon as it becomes available
-									// prevent multiple binds
-									//$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
-								}
+							e.preventDefault();
+							
+							// If the frame already exists, re-open it.
+							if ( customMediaManager ) {
+								customMediaManager.open();
+							return;
 							}
+							
+							// Get our Parent element
+							formlabel = jQuery(this).parent();
+							
+							var customMediaManager = wp.media.frames.customMediaManager = wp.media({
+								 //Title of media manager frame
+								 title: "Upload Document",
+								 library: {
+									type: ''
+								 },
+								 frame: 'select',
+								 button: {
+									//Button text
+									text: "<?php echo $this->insert_button_label ?>"
+								 },
+								 //Do not allow multiple files, if you want multiple, set true
+								 multiple: false
+							});
 
-							clearInterval(interval);
-
-							interval = setInterval(iframeSetup, 500);
-						});
+							customMediaManager.on('select', function(){
+								var media_attachment = customMediaManager.state().get('selection').first().toJSON();
+								console.log(media_attachment)
+								formlabel.find('input[type="text"]').val(media_attachment.url);
+							});
+							
+							customMediaManager.open();
+						})
 					}
 				});
 

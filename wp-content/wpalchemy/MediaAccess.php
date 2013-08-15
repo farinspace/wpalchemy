@@ -365,7 +365,7 @@
 							$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
 						}
 
-						$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function()
+						$('[class*="<?php echo $this->button_class_name; ?>"]').on('click', function()
 						{
 							var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
 							name = (name && name[1]) ? name[1] : '' ;

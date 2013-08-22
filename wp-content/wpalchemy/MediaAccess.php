@@ -44,6 +44,17 @@
 	public $insert_button_label = null;
 
 	/**
+	 * User defined label for the "Add Media" button, this
+	 * can be set once or per field and button pair.
+	 *
+	 * @since	0.1
+	 * @access	public
+	 * @var		string optional
+	 * @see		setInsertButtonLabel()
+	 */
+	public $button_label = null;
+
+	/**
 	 * Used to track the current groupname for pairing a field and button.
 	 *
 	 * @since	0.1
@@ -76,7 +87,10 @@
 		{
 			$this->$n = $v;
 		}
-
+		if(function_exists('wp_enqueue_media')) {
+			 //call for new media manager
+			 wp_enqueue_media();
+		}
 		if ( ! defined('WPALCHEMY_SEND_TO_EDITOR_ENABLED'))
 		{
 			add_action('admin_footer', array($this, 'init'));
@@ -110,6 +124,13 @@
 	public function setInsertButtonLabel($label = 'Insert')
 	{
 		$this->insert_button_label = $label;
+
+		return $this;
+	}
+	
+	public function setButtonLabel($button = 'Add Media')
+	{
+		$this->button_label = $button;
 
 		return $this;
 	}
@@ -219,7 +240,7 @@
 	{
 		$groupname = isset($groupname) ? $groupname : $this->groupname ;
 		
-		return $this->button_class_name . '-' . $groupname . ' thickbox';
+		return $this->button_class_name . '-' . $groupname . ' ';
 	}
 
 	/**
@@ -257,14 +278,13 @@
 		
 		$attr_default = array
 		(
-			'label' => 'Add Media',
-			'href' => $this->getButtonLink($tab),
+			'label' => $this->button_label,
 			'class' => $this->getButtonClass($groupname) . ' button',
 		);
 
 		if (isset($this->insert_button_label))
 		{
-			$attr_default['class'] .= " {label:'" . $this->insert_button_label . "'}";
+			$attr_default['data-update'] = $this->button_label;
 		}
 
 		###
@@ -288,10 +308,14 @@
 		{
 			array_push($elem_attr, $n . '="' . $v . '"');
 		}
+		$modal_update_href = esc_url( add_query_arg( array(
+			'_wpnonce' => wp_create_nonce( 'media-access' ),
+			),
+			admin_url( 'upload.php' ) ) );
+
 
 		###
-
-		return '<input type="button" ' . implode(' ', $elem_attr) . ' value="' .$label. '" />';
+		return '<a href="'.$modal_update_href.'" ' . implode(' ', $elem_attr) . '>'.$label.'</a>';
 	}
 
 	/**
@@ -307,7 +331,7 @@
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
 		$file = basename(parse_url($uri, PHP_URL_PATH));
-
+		
 		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
 		{
 			// include javascript for special functionality
@@ -316,8 +340,6 @@
 
 				jQuery(function($)
 				{
-					if (typeof send_to_editor === 'function')
-					{
 						var wpalchemy_insert_button_label = '';
 
 						var wpalchemy_mediafield = null;
@@ -360,7 +382,7 @@
 								 frame: 'select',
 								 button: {
 									//Button text
-									text: "<?php echo $this->insert_button_label ?>"
+									text: jQuery(this).attr("data-update")
 								 },
 								 //Do not allow multiple files, if you want multiple, set true
 								 multiple: false
@@ -374,7 +396,6 @@
 							
 							customMediaManager.open();
 						})
-					}
 				});
 
 			/* ]]> */

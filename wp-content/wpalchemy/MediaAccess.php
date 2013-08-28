@@ -89,6 +89,7 @@
 		}
 		if(function_exists('wp_enqueue_media')) {
 			 //call for new media manager
+			 wp_enqueue_script('jquery');
 			 wp_enqueue_media();
 		}
 		if ( ! defined('WPALCHEMY_SEND_TO_EDITOR_ENABLED'))
@@ -284,7 +285,7 @@
 
 		if (isset($this->insert_button_label))
 		{
-			$attr_default['data-update'] = $this->button_label;
+			$attr_default['data-update'] = $this->insert_button_label;
 		}
 
 		###
@@ -315,6 +316,7 @@
 
 
 		###
+		//return '<input type="button" ' . implode(' ', $elem_attr) . ' value="' .$label. '" />';
 		return '<a href="'.$modal_update_href.'" ' . implode(' ', $elem_attr) . '>'.$label.'</a>';
 	}
 
@@ -331,12 +333,13 @@
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
 		$file = basename(parse_url($uri, PHP_URL_PATH));
-		
 		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
 		{
 			// include javascript for special functionality
-			?><script type="text/javascript">
+			?>
+<script type="text/javascript">
 			/* <![CDATA[ */
+
 
 				jQuery(function($)
 				{
@@ -349,16 +352,6 @@
 						var customMediaManager;
 						
 						var formlabel = 0;
-						
-						function getInsertButtonLabel()
-						{
-							return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
-						}
-
-						function setInsertButtonLabel(label)
-						{
-							$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
-						}
 
 						$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function(e)
 						{
@@ -370,8 +363,11 @@
 							return;
 							}
 							
-							// Get our Parent element
-							formlabel = jQuery(this).parent();
+							// Get our Button element
+							formlabel = jQuery(this);
+							
+							// Get our Form element
+							form = jQuery(this).parent();
 							
 							var customMediaManager = wp.media.frames.customMediaManager = wp.media({
 								 //Title of media manager frame
@@ -381,17 +377,16 @@
 								 },
 								 frame: 'select',
 								 button: {
-									//Button text
-									text: jQuery(this).attr("data-update")
+									//Set Button text
+									text: formlabel.attr("data-update")
 								 },
 								 //Do not allow multiple files, if you want multiple, set true
 								 multiple: false
 							});
-
 							customMediaManager.on('select', function(){
+								//Set text box value
 								var media_attachment = customMediaManager.state().get('selection').first().toJSON();
-								console.log(media_attachment)
-								formlabel.find('input[type="text"]').val(media_attachment.url);
+								form.find('input[type="text"]').val(media_attachment.url);
 							});
 							
 							customMediaManager.open();
@@ -399,7 +394,8 @@
 				});
 
 			/* ]]> */
-			</script><?php
+			</script>
+<?php
 		}
 	}
 }

@@ -12,4 +12,6 @@ include_once 'metaboxes/radio-spec.php';
 
 include_once 'metaboxes/select-spec.php';
 
+include_once 'metaboxes/media-spec.php';
+
 /* eof */

@@ -87,11 +87,20 @@
 		{
 			$this->$n = $v;
 		}
-		if(function_exists('wp_enqueue_media')) {
-			 //call for new media manager
+		
+		// Get current post ID
+		
+		if ( isset( $_REQUEST['post'] ) ) {
+			$post = get_post( $_REQUEST['post'] );
+		}
+		
+		// Check post type support for thumbnails, call wp_enqueue_media() scripts if thumbnails not supported.
+		
+		if(!post_type_supports( $post->post_type, 'thumbnail' ) && function_exists('wp_enqueue_media')) {
 			 wp_enqueue_script('jquery');
 			 wp_enqueue_media();
 		}
+		
 		if ( ! defined('WPALCHEMY_SEND_TO_EDITOR_ENABLED'))
 		{
 			add_action('admin_footer', array($this, 'init'));

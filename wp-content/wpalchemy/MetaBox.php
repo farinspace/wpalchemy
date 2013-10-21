@@ -445,7 +445,8 @@ class WPAlchemy_MetaBox
 	 */
 	private $_loop_data;
 
-	public function WPAlchemy_MetaBox($arr) {
+	public function WPAlchemy_MetaBox($arr)
+  {
 		$this->_loop_data = new stdClass;
 
 		$this->meta = array();
@@ -516,7 +517,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.3.16
 	 * @access	private
 	 */
-	private function _import($post_id, $key, $value) {
+	private function _import($post_id, $key, $value)
+  {
 		if (WPALCHEMY_MODE_ARRAY == $this->mode AND $key == $this->id)
 		{
 			// using $wp_import to get access to the raw postmeta data prior to it getting passed
@@ -552,7 +554,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	private
 	 */
-	private function _init() {
+	private function _init()
+  {
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
 
@@ -628,14 +631,17 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_foot()
 	 */
-	private function _head() {
+	private function _head()
+  {
 		$content = NULL;
 
 		ob_start();
 
 		?>
 		<style type="text/css">
-			<?php if ($this->hide_editor) { ?> #wp-content-editor-container, #post-status-info, <?php if ($this->use_media_buttons) { ?> #content-html, #content-tmce<?php } else { ?> #wp-content-wrap<?php } ?> { display:none; } <?php } ?>
+			<?php if ($this->hide_editor)
+  { ?> #wp-content-editor-container, #post-status-info, <?php if ($this->use_media_buttons)
+  { ?> #content-html, #content-tmce<?php } else { ?> #wp-content-wrap<?php } ?> { display:none; } <?php } ?>
 		</style>
 		<?php
 
@@ -666,7 +672,8 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_head()
 	 */
-	private function _foot() {
+	private function _foot()
+  {
 		$content = NULL;
 
 		if
@@ -682,7 +689,8 @@ class WPAlchemy_MetaBox
 			?>
 			<script type="text/javascript">
 			/* <![CDATA[ */
-			(function($){ /* not using jQuery ondomready, code runs right away in footer */
+			(function($)
+  { /* not using jQuery ondomready, code runs right away in footer */
 
 				var mb_id = '<?php echo $this->id; ?>';
 				var mb = $('#' + mb_id + '_metabox');
@@ -760,7 +768,8 @@ class WPAlchemy_MetaBox
 				<?php elseif (WPALCHEMY_VIEW_ALWAYS_OPENED == $this->view): ?>
 				/* todo: need to find a way to add this script block below, load-scripts.php?... */
 				var h3 = mb.children('h3');
-				setTimeout(function(){ h3.unbind('click'); }, 1000);
+				setTimeout(function()
+  { h3.unbind('click'); }, 1000);
 				$('.handlediv', mb).remove();
 				mb.removeClass('closed'); /* start opened */
 				$('.hndle', mb).css('cursor','auto');
@@ -804,7 +813,8 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_init()
 	 */
-	private function _setup() {
+	private function _setup()
+  {
 		$this->in_template = TRUE;
 
 		// also make current post data available
@@ -921,7 +931,8 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L324
 	 */
-	public function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
+	public function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1)
+  {
 		$tag = $this->_get_action_tag($tag);
 		add_action($tag, $function_to_add, $priority, $accepted_args);
 	}
@@ -933,7 +944,8 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L492
 	 */
-	public function has_action($tag, $function_to_check = FALSE) {
+	public function has_action($tag, $function_to_check = FALSE)
+  {
 		$tag = $this->_get_action_tag($tag);
 		return has_action($tag, $function_to_check);
 	}
@@ -945,7 +957,8 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L513
 	 */
-	public function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
+	public function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1)
+  {
 		$tag = $this->_get_action_tag($tag);
 		return remove_action($tag, $function_to_remove, $priority, $accepted_args);
 	}
@@ -956,7 +969,8 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L352
 	 */
-	public function do_action($tag, $arg = '') {
+	public function do_action($tag, $arg = '')
+  {
 		$args = func_get_args();
 		$args[0] = $this->_get_action_tag($tag);
 		return call_user_func_array('do_action', $args);
@@ -971,7 +985,8 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_page()
 	 */
-	private function _is_post() {
+	private function _is_post()
+  {
 		if ('post' == WPAlchemy_MetaBox::_is_post_or_page())
 		{
 			return TRUE;
@@ -989,7 +1004,8 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_post()
 	 */
-	private function _is_page() {
+	private function _is_page()
+  {
 		if ('page' == WPAlchemy_MetaBox::_is_post_or_page())
 		{
 			return TRUE;
@@ -1007,7 +1023,8 @@ class WPAlchemy_MetaBox
 	 * @return	string "post" or "page"
 	 * @see		_is_post(), _is_page()
 	 */
-	private function _is_post_or_page() {
+	private function _is_post_or_page()
+  {
 		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
 
 		if (isset($post_type))
@@ -1033,7 +1050,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.6
 	 * @return	string [custom_post_type], page or post
 	 */
-	static function _get_current_post_type() {
+	static function _get_current_post_type()
+  {
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
 		if ( isset( $uri ) )
@@ -1072,7 +1090,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.8
 	 * @return	int post ID
 	 */
-	static function _get_post_id() {
+	static function _get_post_id()
+  {
 		global $post;
 
 		$p_post_id = isset($_POST['post_ID']) ? $_POST['post_ID'] : null ;
@@ -1331,7 +1350,8 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_global_foot()
 	 */
-	private function _global_head() {
+	private function _global_head()
+  {
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
 
@@ -1487,14 +1507,16 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_global_head()
 	 */
-	private function _global_foot() {
+	private function _global_foot()
+  {
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
 
 		?>
 		<script type="text/javascript">
 		/* <![CDATA[ */
-		(function($){ /* not using jQuery ondomready, code runs right away in footer */
+		(function($)
+  { /* not using jQuery ondomready, code runs right away in footer */
 
 			/* use a global dom element to attach events to */
 			$.wpalchemy = $('<div></div>').attr('id','wpalchemy').appendTo('body');
@@ -1514,7 +1536,8 @@ class WPAlchemy_MetaBox
 	 * @return	array
 	 * @see		_meta
 	 */
-	public function the_meta($post_id = NULL) {
+	public function the_meta($post_id = NULL)
+  {
 		return $this->_meta($post_id);
 	}
 
@@ -1531,7 +1554,8 @@ class WPAlchemy_MetaBox
 	 * @return	array
 	 * @see		the_meta()
 	 */
-	private function _meta($post_id = NULL, $internal = FALSE) {
+	private function _meta($post_id = NULL, $internal = FALSE)
+  {
 		if ( ! is_numeric($post_id))
 		{
 			if ($internal AND $this->current_post_id)
@@ -1580,7 +1604,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function the_id() {
+	public function the_id()
+  {
 		echo $this->get_the_id();
 	}
 
@@ -1588,7 +1613,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function get_the_id(){
+	public function get_the_id()
+  {
 		return $this->id;
 	}
 
@@ -1596,7 +1622,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function the_field($n, $hint = NULL) {
+	public function the_field($n, $hint = NULL)
+  {
 		if ($this->in_loop) $this->subname = $n;
 		else $this->name = $n;
 
@@ -1607,7 +1634,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function have_value($n = NULL) {
+	public function have_value($n = NULL)
+  {
 		if ($this->get_the_value($n)) return TRUE;
 
 		return FALSE;
@@ -1617,7 +1645,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function the_value($n = NULL) {
+	public function the_value($n = NULL)
+  {
 		echo $this->get_the_value($n);
 	}
 
@@ -1625,7 +1654,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function get_the_value($n = NULL, $collection = FALSE) {
+	public function get_the_value($n = NULL, $collection = FALSE)
+  {
 		$this->_meta(NULL, TRUE);
 
 		$value = null;
@@ -1709,7 +1739,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function the_name($n = NULL) {
+	public function the_name($n = NULL)
+  {
 		echo $this->get_the_name($n);
 	}
 
@@ -1717,7 +1748,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function get_the_name($n = NULL) {
+	public function get_the_name($n = NULL)
+  {
 		if (!$this->in_template AND $this->mode == WPALCHEMY_MODE_EXTRACT)
 		{
 			return $this->prefix . str_replace($this->prefix, '', is_null($n) ? $this->name : $n);
@@ -1883,7 +1915,8 @@ class WPAlchemy_MetaBox
 	 * @return	string suitable to be used inline within the INPUT tag
 	 * @see		the_checkbox_state()
 	 */
-	public function get_the_checkbox_state($n, $v = NULL) {
+	public function get_the_checkbox_state($n, $v = NULL)
+  {
 		if ($this->is_selected($n, $v)) return ' checked="checked"';
 	}
 
@@ -1897,7 +1930,8 @@ class WPAlchemy_MetaBox
 	 * @param	string $v optional the value to check for
 	 * @see		get_the_radio_state()
 	 */
-	public function the_radio_state($n, $v = NULL) {
+	public function the_radio_state($n, $v = NULL)
+  {
 		echo $this->get_the_checkbox_state($n, $v);
 	}
 
@@ -1912,7 +1946,8 @@ class WPAlchemy_MetaBox
 	 * @return	string suitable to be used inline within the INPUT tag
 	 * @see		the_radio_state()
 	 */
-	public function get_the_radio_state($n, $v = NULL) {
+	public function get_the_radio_state($n, $v = NULL)
+  {
 		return $this->get_the_checkbox_state($n, $v);
 	}
 
@@ -1926,7 +1961,8 @@ class WPAlchemy_MetaBox
 	 * @param	string $v optional the value to check for
 	 * @see		get_the_select_state()
 	 */
-	public function the_select_state($n, $v = NULL) {
+	public function the_select_state($n, $v = NULL)
+  {
 		echo $this->get_the_select_state($n, $v);
 	}
 
@@ -1941,7 +1977,8 @@ class WPAlchemy_MetaBox
 	 * @return	string suitable to be used inline within the SELECT tag
 	 * @see		the_select_state()
 	 */
-	public function get_the_select_state($n, $v = NULL) {
+	public function get_the_select_state($n, $v = NULL)
+  {
 		if ($this->is_selected($n, $v)) return ' selected="selected"';
 	}
 
@@ -1949,7 +1986,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.1
 	 * @access	public
 	 */
-	public function the_group_open($t = 'div') {
+	public function the_group_open($t = 'div')
+  {
 		echo $this->get_the_group_open($t);
 	}
 
@@ -1957,7 +1995,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.1
 	 * @access	public
 	 */
-	public function get_the_group_open($t = 'div') {
+	public function get_the_group_open($t = 'div')
+  {
 		$this->group_tag = $t;
 
 		$loop_open = NULL;
@@ -1997,7 +2036,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.1
 	 * @access	public
 	 */
-	public function the_group_close() {
+	public function the_group_close()
+  {
 		echo $this->get_the_group_close();
 	}
 
@@ -2005,7 +2045,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.1
 	 * @access	public
 	 */
-	public function get_the_group_close() {
+	public function get_the_group_close()
+  {
 		$loop_close = NULL;
 
 		if ($this->is_last())
@@ -2020,7 +2061,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.1
 	 * @access	public
 	 */
-	public function have_fields_and_multi($n, $options = NULL) {
+	public function have_fields_and_multi($n, $options = NULL)
+  {
 		if (is_array($options))
 		{
 			// use as stdClass object
@@ -2059,7 +2101,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function have_fields($n,$length=NULL) {
+	public function have_fields($n,$length=NULL)
+  {
 		$this->_meta(NULL, TRUE);
 		$this->in_loop = 'normal';
 		return $this->_loop($n,$length);
@@ -2069,7 +2112,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	private
 	 */
-	private function _loop($n,$length=NULL,$and_one=0) {
+	private function _loop($n,$length=NULL,$and_one=0)
+  {
 		if (!$this->in_loop)
 		{
 			$this->in_loop = TRUE;
@@ -2125,7 +2169,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	private
 	 */
-	private function _save($post_id) {
+	private function _save($post_id)
+  {
 		/**
 		 * note: the "save_post" action fires for saving revisions and post/pages,
 		 * when saving a post this function fires twice, once for a revision save,
@@ -2271,7 +2316,8 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @param	array the array to clean (passed by reference)
 	 */
-	public function clean(&$arr) {
+	public function clean(&$arr)
+  {
 		if (is_array($arr))
 		{
 			foreach ($arr as $i => $v)

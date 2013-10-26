@@ -1,21 +1,24 @@
 <?php
 
 /**
- * @author		Dimas Begunoff
+ * @author  	Dimas Begunoff
  * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
  * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package		WPAlchemy
- * @version		1.5.2
+ * @version		1.5
  * @link		http://github.com/farinspace/wpalchemy
  * @link		http://farinspace.com
  */
 
-// todo: perhaps move _global_head and _global_foot locally, when first run
+// todo: perhaps move prk_alc_global_head and prk_alc_global_foot locally, when first run
 // define a constant to prevent other instances from running again ...
 
-add_action('admin_head', array('WPAlchemy_MetaBox', '_global_head'));
 
-add_action('admin_footer', array('WPAlchemy_MetaBox', '_global_foot'));
+//THIS FILE WAS TWEAKED BY PIRENKO AND IT'S PROVIDED AS IS. THERE'S NO GUARANTEE THAT IT WILL WORK AS EXPECTED
+
+add_action('admin_head', 'prk_alc_global_head');
+
+add_action('admin_footer', 'prk_alc_global_foot');
 
 define('WPALCHEMY_MODE_ARRAY', 'array');
 
@@ -135,7 +138,7 @@ class WPAlchemy_MetaBox
 	/**
 	 * When the mode option is set to WPALCHEMY_MODE_EXTRACT, you have to take
 	 * care to avoid name collisions with other meta entries. Use this option to
-	 * automatically add a prefix to your variables, this option should be used
+	 * automatically add a prefix to your vsambables, this option should be used
 	 * when instantiating the class.
 	 *
 	 * @since	1.2
@@ -247,7 +250,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array optional
-	 * @param	array $post_id first variable passed to the callback function
+	 * @param	array $post_id first vsambable passed to the callback function
 	 * @see		can_output()
 	 */
 	var $output_filter;
@@ -260,8 +263,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array optional
-	 * @param	array $meta meta box data, first variable passed to the callback function
-	 * @param	string $post_id second variable passed to the callback function
+	 * @param	array $meta meta box data, first vsambable passed to the callback function
+	 * @param	string $post_id second vsambable passed to the callback function
 	 * @see		$save_action, add_filter()
 	 */
 	var $save_filter;
@@ -273,8 +276,8 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array optional
-	 * @param	array $meta meta box data, first variable passed to the callback function
-	 * @param	string $post_id second variable passed to the callback function
+	 * @param	array $meta meta box data, first vsambable passed to the callback function
+	 * @param	string $post_id second vsambable passed to the callback function
 	 * @see		$save_filter, add_filter()
 	 */
 	var $save_action;
@@ -286,7 +289,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array optional
-	 * @param	array $content current head content, first variable passed to the callback function
+	 * @param	array $content current head content, first vsambable passed to the callback function
 	 * @see		$head_action, add_filter()
 	 */
 	var $head_filter;
@@ -309,7 +312,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.3
 	 * @access	public
 	 * @var		string|array optional
-	 * @param	array $content current foot content, first variable passed to the callback function
+	 * @param	array $content current foot content, first vsambable passed to the callback function
 	 * @see		$foot_action, add_filter()
 	 */
 	var $foot_filter;
@@ -494,7 +497,7 @@ class WPAlchemy_MetaBox
 				}
 			}
 
-			// convert depreciated variables
+			// convert depreciated vsambables
 			if ($this->lock_on_top) $this->lock = WPALCHEMY_LOCK_TOP;
 			elseif ($this->lock_on_bottom) $this->lock = WPALCHEMY_LOCK_BOTTOM;
 			
@@ -510,9 +513,7 @@ class WPAlchemy_MetaBox
 	}
 
 	/**
-	 * Used to correct double serialized data during post/page export/import,
-	 * additionally will try to fix corrupted serialized data by recalculating
-	 * string length values
+	 * Used to correct double serialized data during post/page export/import
 	 *
 	 * @since	1.3.16
 	 * @access	private
@@ -521,29 +522,8 @@ class WPAlchemy_MetaBox
 	{
 		if (WPALCHEMY_MODE_ARRAY == $this->mode AND $key == $this->id)
 		{
-			// using $wp_import to get access to the raw postmeta data prior to it getting passed
-			// through "maybe_unserialize()" in "plugins/wordpress-importer/wordpress-importer.php"
-			// the "import_post_meta" action is called after "maybe_unserialize()"
-			
-			global $wp_import;
-
-			foreach ( $wp_import->posts as $post )
-			{
-				if ( $post_id == $post['post_id'] )
-				{
-					foreach( $post['postmeta'] as $meta )
-					{
-						if ( $key == $meta['key'] )
-						{
-							// try to fix corrupted serialized data, specifically "\r\n" being converted to "\n" during wordpress XML export (WXR)
-							// "maybe_unserialize()" fixes a wordpress bug which double serializes already serialized data during export/import
-							$value = maybe_unserialize( preg_replace( '!s:(\d+):"(.*?)";!es', "'s:'.strlen('$2').':\"$2\";'", stripslashes( $meta['value'] ) ) );
-							
-							update_post_meta( $post_id, $key,  $value );
-						}
-					}
-				}
-			}
+			// maybe_unserialize fixes a wordpress bug which double serializes already serialized data during export/import
+			update_post_meta($post_id, $key, maybe_unserialize(stripslashes($value)));
 		}
 	}
 
@@ -557,7 +537,7 @@ class WPAlchemy_MetaBox
 	function _init()
 	{
 		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
+		if ( !prk_alc_is_post() AND !prk_alc_is_page()) return;
 		
 		if ( ! empty($this->output_filter))
 		{
@@ -971,147 +951,14 @@ class WPAlchemy_MetaBox
 		$args[0] = $this->_get_action_tag($tag);
 		return call_user_func_array('do_action', $args);
 	}
-
-	/**
-	 * Used to check if creating a new post or editing one
-	 *
-	 * @static
-	 * @since	1.3.7
-	 * @access	private
-	 * @return	bool
-	 * @see		_is_page()
-	 */
-	function _is_post()
-	{
-		if ('post' == WPAlchemy_MetaBox::_is_post_or_page())
-		{
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * Used to check if creating a new page or editing one
-	 *
-	 * @static
-	 * @since	1.3.7
-	 * @access	private
-	 * @return	bool
-	 * @see		_is_post()
-	 */
-	function _is_page()
-	{
-		if ('page' == WPAlchemy_MetaBox::_is_post_or_page())
-		{
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * Used to check if creating or editing a post or page
-	 *
-	 * @static
-	 * @since	1.3.8
-	 * @access	private
-	 * @return	string "post" or "page"
-	 * @see		_is_post(), _is_page()
-	 */
-	function _is_post_or_page()
-	{
-		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
-
-		if (isset($post_type))
-		{
-			if ('page' == $post_type)
-			{
-				return 'page';
-			}
-			else
-			{
-				return 'post';
-			}
-		}
-
-		return NULL;
-	}
-
-	/**
-	 * Used to check for the current post type, works when creating or editing a
-	 * new post, page or custom post type.
-	 *
-	 * @static
-	 * @since	1.4.6
-	 * @return	string [custom_post_type], page or post
-	 */
-	function _get_current_post_type()
-	{
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
-
-		if ( isset( $uri ) )
-		{
-			$uri_parts = parse_url($uri);
-
-			$file = basename($uri_parts['path']);
-
-			if ($uri AND in_array($file, array('post.php', 'post-new.php')))
-			{
-				$post_id = WPAlchemy_MetaBox::_get_post_id();
-
-				$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
-
-				$post_type = $post_id ? get_post_type($post_id) : $post_type ;
-
-				if (isset($post_type))
-				{
-					return $post_type;
-				}
-				else
-				{
-					// because of the 'post.php' and 'post-new.php' checks above, we can default to 'post'
-					return 'post';
-				}
-			}
-		}
-
-		return NULL;
-	}
-
-	/**
-	 * Used to get the current post id.
-	 *
-	 * @static
-	 * @since	1.4.8
-	 * @return	int post ID
-	 */
-	function _get_post_id()
-	{
-		global $post;
-
-		$p_post_id = isset($_POST['post_ID']) ? $_POST['post_ID'] : null ;
-
-		$g_post_id = isset($_GET['post']) ? $_GET['post'] : null ;
-
-		$post_id = $g_post_id ? $g_post_id : $p_post_id ;
-
-		$post_id = isset($post->ID) ? $post->ID : $post_id ;
-
-		if (isset($post_id))
-		{
-			return (integer) $post_id;
-		}
-		
-		return null;
-	}
+	
 
 	/**
 	 * @since	1.0
 	 */
 	function can_output()
 	{
-		$post_id = WPAlchemy_MetaBox::_get_post_id();
+		$post_id = prk_alc_get_post_id();
 
 		if (!empty($this->exclude_template) OR !empty($this->include_template))
 		{
@@ -1321,7 +1168,7 @@ class WPAlchemy_MetaBox
 			}
 		}
 
-		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
+		$post_type = prk_alc_get_current_post_type();
 
 		if (isset($post_type) AND ! in_array($post_type, $this->types))
 		{
@@ -1337,197 +1184,6 @@ class WPAlchemy_MetaBox
 		return $can_output;
 	}
 
-	/**
-	 * Used to insert global STYLE or SCRIPT tags into the head, called on
-	 * WordPress admin_footer action.
-	 *
-	 * @static
-	 * @since	1.3
-	 * @access	private
-	 * @see		_global_foot()
-	 */
-	function _global_head()
-	{
-		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
-
-		// todo: you're assuming people will want to use this exact functionality
-		// consider giving a developer access to change this via hooks/callbacks
-
-		// include javascript for special functionality
-		?><style type="text/css"> .wpa_group.tocopy { display:none; } </style>
-		<script type="text/javascript">
-		/* <![CDATA[ */
-		jQuery(function($)
-		{
-			$(document).click(function(e)
-			{		
-				var elem = $(e.target);
-
-				if (elem.attr('class') && elem.filter('[class*=dodelete]').length)
-				{
-					e.preventDefault();
-
-					var p = elem.parents('.postbox'); /*wp*/
-
-					var the_name = elem.attr('class').match(/dodelete-([a-zA-Z0-9_-]*)/i);
-
-					the_name = (the_name && the_name[1]) ? the_name[1] : null ;
-
-					/* todo: expose and allow editing of this message */
-					if (confirm('This action can not be undone, are you sure?'))
-					{
-						if (the_name)
-						{
-							$('.wpa_group-'+ the_name, p).not('.tocopy').remove();
-						}
-						else
-						{
-							elem.parents('.wpa_group').remove();
-						}
-						
-						var the_group = elem.parents('.wpa_group');
-						
-						if(the_group && the_group.attr('class'))
-						{
-							the_name = the_group.attr('class').match(/wpa_group-([a-zA-Z0-9_-]*)/i);
-
-							the_name = (the_name && the_name[1]) ? the_name[1] : null ;
-
-							checkLoopLimit(the_name);
-						}
-
-						$.wpalchemy.trigger('wpa_delete');
-					}
-				}
-			});
-
-			$('[class*=docopy-]').click(function(e)
-			{
-				e.preventDefault();
-
-				var p = $(this).parents('.postbox'); /*wp*/
-
-				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
-
-				var the_group = $('.wpa_group-'+ the_name +'.tocopy', p).first();
-
-				var the_clone = the_group.clone().removeClass('tocopy last');
-
-				var the_props = ['name', 'id', 'for', 'class'];
-
-				the_group.find('*').each(function(i, elem)
-				{
-					for (var j = 0; j < the_props.length; j++)
-					{
-						var the_prop = $(elem).attr(the_props[j]);
-
-						if (the_prop)
-						{
-							var the_match = the_prop.match(/\[(\d+)\]/i);
-
-							if (the_match)
-							{
-								the_prop = the_prop.replace(the_match[0],'['+ (+the_match[1]+1) +']');
-
-								$(elem).attr(the_props[j], the_prop);
-							}
-
-							the_match = null;
-
-							// todo: this may prove to be too broad of a search
-							the_match = the_prop.match(/n(\d+)/i);
-
-							if (the_match)
-							{
-								the_prop = the_prop.replace(the_match[0], 'n' + (+the_match[1]+1));
-
-								$(elem).attr(the_props[j], the_prop);
-							}
-						}
-					}
-				});
-
-				if ($(this).hasClass('ontop'))
-				{
-					$('.wpa_group-'+ the_name, p).first().before(the_clone);
-				}
-				else
-				{
-					the_group.before(the_clone);
-				}
-
-				checkLoopLimit(the_name);
-
-				$.wpalchemy.trigger('wpa_copy', [the_clone]);
-			});
-
-			function checkLoopLimit(name)
-			{
-				var elem = $('.docopy-' + name);
-
-				var the_class = $('.wpa_loop-' + name).attr('class');
-
-				if (the_class)
-				{
-					var the_match = the_class.match(/wpa_loop_limit-([0-9]*)/i);
-
-					if (the_match)
-					{
-						var the_limit = the_match[1];
-
-						if ($('.wpa_group-' + name).not('.wpa_group.tocopy').length >= the_limit)
-						{
-							elem.hide();
-						}
-						else
-						{
-							elem.show();
-						}
-					}
-				}
-			}
-			
-			/* do an initial limit check, show or hide buttons */
-			$('[class*=docopy-]').each(function()
-			{
-				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
-
-				checkLoopLimit(the_name);
-			});
-		});
-		/* ]]> */
-		</script>
-		<?php
-	}
-
-	/**
-	 * Used to insert global SCRIPT tags into the footer, called on WordPress
-	 * admin_footer action.
-	 *
-	 * @static
-	 * @since	1.3
-	 * @access	private
-	 * @see		_global_head()
-	 */
-	function _global_foot()
-	{
-		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
-
-		?>
-		<script type="text/javascript">
-		/* <![CDATA[ */
-		(function($){ /* not using jQuery ondomready, code runs right away in footer */
-
-			/* use a global dom element to attach events to */
-			$.wpalchemy = $('<div></div>').attr('id','wpalchemy').appendTo('body');
-
-		})(jQuery);
-		/* ]]> */
-		</script>
-		<?php
-	}
 
 	/**
 	 * Gets the meta data for a meta box
@@ -2369,5 +2025,326 @@ class WPAlchemy_MetaBox
 		}
 	}
 }
+
+
+/**
+	 * Used to insert global STYLE or SCRIPT tags into the head, called on
+	 * WordPress admin_footer action.
+	 *
+	 * @static
+	 * @since	1.3
+	 * @access	private
+	 * @see		prk_alc_global_foot()
+	 */
+	function prk_alc_global_head()
+	{
+		// must be creating or editing a post or page
+		if ( !prk_alc_is_post() AND ! prk_alc_is_page()) return;
+
+		// todo: you're assuming people will want to use this exact functionality
+		// consider giving a developer access to change this via hooks/callbacks
+
+		// include javascript for special functionality
+		?><style type="text/css"> .wpa_group.tocopy { display:none; } </style>
+		<script type="text/javascript">
+		/* <![CDATA[ */
+		jQuery(function($)
+		{
+			$(document).click(function(e)
+			{		
+				var elem = $(e.target);
+
+				if (elem.attr('class') && elem.filter('[class*=dodelete]').length)
+				{
+					e.preventDefault();
+
+					var p = elem.parents('.postbox'); /*wp*/
+
+					var the_name = elem.attr('class').match(/dodelete-([a-zA-Z0-9_-]*)/i);
+
+					the_name = (the_name && the_name[1]) ? the_name[1] : null ;
+
+					/* todo: expose and allow editing of this message */
+					if (confirm('This action can not be undone, are you sure?'))
+					{
+						if (the_name)
+						{
+							$('.wpa_group-'+ the_name, p).not('.tocopy').remove();
+						}
+						else
+						{
+							elem.parents('.wpa_group').remove();
+						}
+
+						the_name = elem.parents('.wpa_group').attr('class').match(/wpa_group-([a-zA-Z0-9_-]*)/i)[1];
+
+						checkLoopLimit(the_name);
+
+						$.wpalchemy.trigger('wpa_delete');
+					}
+				}
+			});
+
+			$('[class*=docopy-]').click(function(e)
+			{
+				e.preventDefault();
+
+				var p = $(this).parents('.postbox'); /*wp*/
+
+				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
+
+				var the_group = $('.wpa_group-'+ the_name +':first.tocopy', p);
+				
+				var the_clone = the_group.clone().removeClass('tocopy last');
+
+				var the_props = ['name', 'id', 'for', 'class'];
+
+				the_group.find('*').each(function(i, elem)
+				{
+					for (var j = 0; j < the_props.length; j++)
+					{
+						var the_prop = $(elem).attr(the_props[j]);
+
+						if (the_prop)
+						{
+							var the_match = the_prop.match(/\[(\d+)\]/i);
+
+							if (the_match)
+							{
+								the_prop = the_prop.replace(the_match[0],'['+ (+the_match[1]+1) +']');
+
+								$(elem).attr(the_props[j], the_prop);
+							}
+
+							the_match = null;
+
+							// todo: this may prove to be too broad of a search
+							the_match = the_prop.match(/n(\d+)/i);
+
+							if (the_match)
+							{
+								the_prop = the_prop.replace(the_match[0], 'n' + (+the_match[1]+1));
+
+								$(elem).attr(the_props[j], the_prop);
+							}
+						}
+					}
+				});
+
+				if ($(this).hasClass('ontop'))
+				{
+					$('.wpa_group-'+ the_name +':first', p).before(the_clone);
+				}
+				else
+				{
+					the_group.before(the_clone);
+				}
+
+				checkLoopLimit(the_name);
+
+				$.wpalchemy.trigger('wpa_copy', [the_clone]);
+			});
+
+			function checkLoopLimit(name)
+			{
+				var elem = $('.docopy-' + name);
+
+				var the_class = $('.wpa_loop-' + name).attr('class');
+
+				if (the_class)
+				{
+					var the_match = the_class.match(/wpa_loop_limit-([0-9]*)/i);
+
+					if (the_match)
+					{
+						var the_limit = the_match[1];
+
+						if ($('.wpa_group-' + name).not('.wpa_group.tocopy').length >= the_limit)
+						{
+							elem.hide();
+						}
+						else
+						{
+							elem.show();
+						}
+					}
+				}
+			}
+			
+			/* do an initial limit check, show or hide buttons */
+			$('[class*=docopy-]').each(function()
+			{
+				var the_name = $(this).attr('class').match(/docopy-([a-zA-Z0-9_-]*)/i)[1];
+
+				checkLoopLimit(the_name);
+			});
+		});
+		/* ]]> */
+		</script>
+		<?php
+	}
+
+	/**
+	 * Used to insert global SCRIPT tags into the footer, called on WordPress
+	 * admin_footer action.
+	 *
+	 * @static
+	 * @since	1.3
+	 * @access	private
+	 * @see		prk_alc_global_head()
+	 */
+	function prk_alc_global_foot()
+	{
+		// must be creating or editing a post or page
+		if ( ! prk_alc_is_post() AND ! prk_alc_is_page()) return;
+
+		?>
+		<script type="text/javascript">
+		/* <![CDATA[ */
+		(function($){ /* not using jQuery ondomready, code runs right away in footer */
+
+			/* use a global dom element to attach events to */
+			$.wpalchemy = $('<div></div>').attr('id','wpalchemy').appendTo('body');
+
+		})(jQuery);
+		/* ]]> */
+		</script>
+		<?php
+	}
+
+
+/**
+	 * Used to get the current post id.
+	 *
+	 * @static
+	 * @since	1.4.8
+	 * @return	int post ID
+	 */
+	function prk_alc_get_post_id()
+	{
+		global $post;
+
+		$p_post_id = isset($_POST['post_ID']) ? $_POST['post_ID'] : null ;
+
+		$g_post_id = isset($_GET['post']) ? $_GET['post'] : null ;
+
+		$post_id = $g_post_id ? $g_post_id : $p_post_id ;
+
+		$post_id = isset($post->ID) ? $post->ID : $post_id ;
+
+		if (isset($post_id))
+		{
+			return (integer) $post_id;
+		}
+		
+		return null;
+	}
+
+/**
+	 * Used to check for the current post type, works when creating or editing a
+	 * new post, page or custom post type.
+	 *
+	 * @static
+	 * @since	1.4.6
+	 * @return	string [custom_post_type], page or post
+	 */
+	function prk_alc_get_current_post_type()
+	{
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
+
+		if ( isset( $uri ) )
+		{
+			$uri_parts = parse_url($uri);
+
+			$file = basename($uri_parts['path']);
+
+			if ($uri AND in_array($file, array('post.php', 'post-new.php')))
+			{
+				$post_id = prk_alc_get_post_id();
+
+				$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
+
+				$post_type = $post_id ? get_post_type($post_id) : $post_type ;
+
+				if (isset($post_type))
+				{
+					return $post_type;
+				}
+				else
+				{
+					// because of the 'post.php' and 'post-new.php' checks above, we can default to 'post'
+					return 'post';
+				}
+			}
+		}
+
+		return NULL;
+	}
+
+	/**
+	 * Used to check if creating or editing a post or page
+	 *
+	 * @static
+	 * @since	1.3.8
+	 * @access	private
+	 * @return	string "post" or "page"
+	 * @see		prk_alc_is_post(), prk_alc_is_page()
+	 */
+	function prk_alc_is_post_or_page()
+	{
+		$post_type = prk_alc_get_current_post_type();
+
+		if (isset($post_type))
+		{
+			if ('page' == $post_type)
+			{
+				return 'page';
+			}
+			else
+			{
+				return 'post';
+			}
+		}
+
+		return NULL;
+	}
+
+	/**
+	 * Used to check if creating a new post or editing one
+	 *
+	 * @static
+	 * @since	1.3.7
+	 * @access	private
+	 * @return	bool
+	 * @see		prk_alc_is_page()
+	 */
+	function prk_alc_is_post()
+	{
+		if ('post' == prk_alc_is_post_or_page())
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	/**
+	 * Used to check if creating a new page or editing one
+	 *
+	 * @static
+	 * @since	1.3.7
+	 * @access	private
+	 * @return	bool
+	 * @see		prk_alc_is_post()
+	 */
+	function prk_alc_is_page()
+	{
+		if ('page' == prk_alc_is_post_or_page())
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 
 /* eof */

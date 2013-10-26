@@ -92,15 +92,14 @@
 		
 		if ( isset( $_REQUEST['post'] ) ) {
 			$post = get_post( $_REQUEST['post'] );
-		}
 		
 		// Check post type support for thumbnails, call wp_enqueue_media() scripts if thumbnails not supported.
 		
 		if(!post_type_supports( $post->post_type, 'thumbnail' ) && function_exists('wp_enqueue_media')) {
-			 wp_enqueue_media();
-		}
-		if(!wp_script_is('jquery')){
-			 wp_enqueue_script('jquery');
+			if(!wp_script_is('jquery')){
+				wp_enqueue_script('jquery');
+			}
+			wp_enqueue_media();
 		}
 		
 		if ( ! defined('WPALCHEMY_SEND_TO_EDITOR_ENABLED'))
@@ -108,6 +107,8 @@
 			add_action('admin_footer', array($this, 'init'));
 
 			define('WPALCHEMY_SEND_TO_EDITOR_ENABLED', true);
+		}
+		
 		}
 	}
 
@@ -323,7 +324,7 @@
 		$modal_update_href = esc_url( add_query_arg( array(
 			'_wpnonce' => wp_create_nonce( 'media-access' ),
 			),
-			admin_url( 'upload.php' ) ) );
+			admin_url( 'media-upload.php' ) ) );
 
 
 		###

@@ -2209,7 +2209,7 @@ class WPAlchemy_MetaBox
 
 		$new_data = isset( $_POST[$this->id] ) ? $_POST[$this->id] : NULL ;
 
-		$this->clean($new_data);
+		WPAlchemy_MetaBox::clean($new_data);
 
 		if (empty($new_data))
 		{
@@ -2318,7 +2318,7 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @param	array the array to clean (passed by reference)
 	 */
-	function clean(&$arr)
+	static function clean(&$arr)
 	{
 		if (is_array($arr))
 		{

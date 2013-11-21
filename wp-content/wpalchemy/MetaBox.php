@@ -1000,7 +1000,7 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_post()
 	 */
-	function _is_page()
+	private static function _is_page()
 	{
 		if ('page' == WPAlchemy_MetaBox::_is_post_or_page())
 		{

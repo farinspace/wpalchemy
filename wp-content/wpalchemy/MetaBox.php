@@ -1086,7 +1086,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.8
 	 * @return	int post ID
 	 */
-	function _get_post_id()
+	static function _get_post_id()
 	{
 		global $post;
 
@@ -2209,7 +2209,7 @@ class WPAlchemy_MetaBox
 
 		$new_data = isset( $_POST[$this->id] ) ? $_POST[$this->id] : NULL ;
 
-		WPAlchemy_MetaBox::clean($new_data);
+		$this->clean($new_data);
 
 		if (empty($new_data))
 		{

@@ -88,12 +88,12 @@ class WPAlchemy_MetaBox
 	var $template;
 
 	/**
-	 * Used to set the post types that the meta box can appear in, this option 
+	 * Used to set the post types that the meta box can appear in, this option
 	 * should be used when instantiating the class.
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @var		array 
+	 * @var		array
 	 */
 	var $types;
 
@@ -110,7 +110,7 @@ class WPAlchemy_MetaBox
 	 * @var		bool
 	 */
 	var $priority = 'high';
-	
+
 	/**
 	 * @since	1.0
 	 * @access	public
@@ -121,8 +121,8 @@ class WPAlchemy_MetaBox
 	/**
 	 * Used to set how the class does its data storage, data will be stored as
 	 * an associative array in a single meta entry in the wp_postmeta table or
-	 * data can be set and individual entries in the wp_postmeta table, the 
-	 * following constants should be used when setting this option, 
+	 * data can be set and individual entries in the wp_postmeta table, the
+	 * following constants should be used when setting this option,
 	 * WPALCHEMY_MODE_ARRAY (default) and WPALCHEMY_MODE_EXTRACT, this option
 	 * should be used when instantiating the class.
 	 *
@@ -229,7 +229,7 @@ class WPAlchemy_MetaBox
 	var $include_post_id;
 
 	/**
-	 * Callback used on the WordPress "admin_init" action, the main benefit is 
+	 * Callback used on the WordPress "admin_init" action, the main benefit is
 	 * that this callback is executed only when the meta box is present, this
 	 * option should be used when instantiating the class.
 	 *
@@ -344,7 +344,7 @@ class WPAlchemy_MetaBox
 	 * @var		bool optional
 	 */
 	var $use_media_buttons = FALSE;
-	
+
 	/**
 	 * Used to hide the meta box title, this option should be used when
 	 * instantiating the class.
@@ -357,7 +357,7 @@ class WPAlchemy_MetaBox
 	var $hide_title = FALSE;
 
 	/**
-	 * Used to lock a meta box in place, possible values are: top, bottom, 
+	 * Used to lock a meta box in place, possible values are: top, bottom,
 	 * before_post_title, after_post_title, this option should be used when
 	 * instantiating the class.
 	 *
@@ -444,11 +444,11 @@ class WPAlchemy_MetaBox
 	 * @see		have_fields_and_multi(), have_fields()
 	 */
 	var $_loop_data;
-	
+
 	function WPAlchemy_MetaBox($arr)
 	{
 		$this->_loop_data = new stdClass;
-		
+
 		$this->meta = array();
 
 		$this->types = array('post', 'page');
@@ -467,7 +467,7 @@ class WPAlchemy_MetaBox
 			if (empty($this->template)) die('Meta box template file required');
 
 			// check for nonarray values
-			
+
 			$exc_inc = array
 			(
 				'exclude_template',
@@ -497,13 +497,13 @@ class WPAlchemy_MetaBox
 			// convert depreciated variables
 			if ($this->lock_on_top) $this->lock = WPALCHEMY_LOCK_TOP;
 			elseif ($this->lock_on_bottom) $this->lock = WPALCHEMY_LOCK_BOTTOM;
-			
+
 			add_action('admin_init', array($this,'_init'));
 
 			// uses the default wordpress-importer plugin hook
 			add_action('import_post_meta', array($this, '_import'), 10, 3);
 		}
-		else 
+		else
 		{
 			die('Associative array parameters required');
 		}
@@ -524,7 +524,7 @@ class WPAlchemy_MetaBox
 			// using $wp_import to get access to the raw postmeta data prior to it getting passed
 			// through "maybe_unserialize()" in "plugins/wordpress-importer/wordpress-importer.php"
 			// the "import_post_meta" action is called after "maybe_unserialize()"
-			
+
 			global $wp_import;
 
 			foreach ( $wp_import->posts as $post )
@@ -538,7 +538,7 @@ class WPAlchemy_MetaBox
 							// try to fix corrupted serialized data, specifically "\r\n" being converted to "\n" during wordpress XML export (WXR)
 							// "maybe_unserialize()" fixes a wordpress bug which double serializes already serialized data during export/import
 							$value = maybe_unserialize( preg_replace( '!s:(\d+):"(.*?)";!es', "'s:'.strlen('$2').':\"$2\";'", stripslashes( $meta['value'] ) ) );
-							
+
 							update_post_meta( $post_id, $key,  $value );
 						}
 					}
@@ -558,7 +558,7 @@ class WPAlchemy_MetaBox
 	{
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
-		
+
 		if ( ! empty($this->output_filter))
 		{
 			$this->add_filter('output', $this->output_filter);
@@ -566,7 +566,7 @@ class WPAlchemy_MetaBox
 
 		if ($this->can_output())
 		{
-			foreach ($this->types as $type) 
+			foreach ($this->types as $type)
 			{
 				add_meta_box($this->id . '_metabox', $this->title, array($this, '_setup'), $type, $this->context, $this->priority);
 			}
@@ -626,7 +626,7 @@ class WPAlchemy_MetaBox
 	/**
 	 * Used to insert STYLE or SCRIPT tags into the head, called on WordPress
 	 * admin_head action.
-	 * 
+	 *
 	 * @since	1.3
 	 * @access	private
 	 * @see		_foot()
@@ -786,7 +786,7 @@ class WPAlchemy_MetaBox
 
 			ob_end_clean();
 		}
-		
+
 		// filter: foot
 		if ($this->has_filter('foot'))
 		{
@@ -812,7 +812,7 @@ class WPAlchemy_MetaBox
 	function _setup()
 	{
 		$this->in_template = TRUE;
-		
+
 		// also make current post data available
 		global $post;
 
@@ -824,7 +824,7 @@ class WPAlchemy_MetaBox
 
 		// use include because users may want to use one templete for multiple meta boxes
 		include $this->template;
-	 
+
 		// create a nonce for verification
 		echo '<input type="hidden" name="'. $this->id .'_nonce" value="' . wp_create_nonce($this->id) . '" />';
 
@@ -834,7 +834,7 @@ class WPAlchemy_MetaBox
 	/**
 	 * Used to properly prefix the filter tag, the tag is unique to the meta
 	 * box instance
-	 * 
+	 *
 	 * @since	1.3
 	 * @access	private
 	 * @param	string $tag name of the filter
@@ -948,7 +948,7 @@ class WPAlchemy_MetaBox
 
 	/**
 	 * Uses WordPress remove_action() function, see WordPress remove_action()
-	 * 
+	 *
 	 * @since	1.3
 	 * @access	public
 	 * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L513
@@ -981,7 +981,7 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_page()
 	 */
-	function _is_post()
+	private static function _is_post()
 	{
 		if ('post' == WPAlchemy_MetaBox::_is_post_or_page())
 		{
@@ -1000,7 +1000,7 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_post()
 	 */
-	function _is_page()
+	private static function _is_page()
 	{
 		if ('page' == WPAlchemy_MetaBox::_is_post_or_page())
 		{
@@ -1019,7 +1019,7 @@ class WPAlchemy_MetaBox
 	 * @return	string "post" or "page"
 	 * @see		_is_post(), _is_page()
 	 */
-	function _is_post_or_page()
+	private static function _is_post_or_page()
 	{
 		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
 
@@ -1046,7 +1046,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.6
 	 * @return	string [custom_post_type], page or post
 	 */
-	function _get_current_post_type()
+	static function _get_current_post_type()
 	{
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
@@ -1086,7 +1086,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.8
 	 * @return	int post ID
 	 */
-	function _get_post_id()
+	static function _get_post_id()
 	{
 		global $post;
 
@@ -1102,7 +1102,7 @@ class WPAlchemy_MetaBox
 		{
 			return (integer) $post_id;
 		}
-		
+
 		return null;
 	}
 
@@ -1118,10 +1118,10 @@ class WPAlchemy_MetaBox
 			$template_file = get_post_meta($post_id,'_wp_page_template',TRUE);
 		}
 
-		if 
+		if
 		(
-			!empty($this->exclude_category) OR 
-			!empty($this->exclude_category_id) OR 
+			!empty($this->exclude_category) OR
+			!empty($this->exclude_category_id) OR
 			!empty($this->include_category) OR
 			!empty($this->include_category_id)
 		)
@@ -1129,10 +1129,10 @@ class WPAlchemy_MetaBox
 			$categories = wp_get_post_categories($post_id,'fields=all');
 		}
 
-		if 
+		if
 		(
-			!empty($this->exclude_tag) OR 
-			!empty($this->exclude_tag_id) OR 
+			!empty($this->exclude_tag) OR
+			!empty($this->exclude_tag_id) OR
 			!empty($this->include_tag) OR
 			!empty($this->include_tag_id)
 		)
@@ -1145,25 +1145,25 @@ class WPAlchemy_MetaBox
 
 		$can_output = TRUE; // include all
 
-		if 
+		if
 		(
-			!empty($this->exclude_template) OR 
-			!empty($this->exclude_category_id) OR 
-			!empty($this->exclude_category) OR 
+			!empty($this->exclude_template) OR
+			!empty($this->exclude_category_id) OR
+			!empty($this->exclude_category) OR
 			!empty($this->exclude_tag_id) OR
 			!empty($this->exclude_tag) OR
 			!empty($this->exclude_post_id) OR
-			!empty($this->include_template) OR 
-			!empty($this->include_category_id) OR 
-			!empty($this->include_category) OR 
-			!empty($this->include_tag_id) OR 
-			!empty($this->include_tag) OR 
+			!empty($this->include_template) OR
+			!empty($this->include_category_id) OR
+			!empty($this->include_category) OR
+			!empty($this->include_tag_id) OR
+			!empty($this->include_tag) OR
 			!empty($this->include_post_id)
 		)
 		{
 			if (!empty($this->exclude_template))
 			{
-				if (in_array($template_file,$this->exclude_template)) 
+				if (in_array($template_file,$this->exclude_template))
 				{
 					$can_output = FALSE;
 				}
@@ -1173,7 +1173,7 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($categories as $cat)
 				{
-					if (in_array($cat->term_id,$this->exclude_category_id)) 
+					if (in_array($cat->term_id,$this->exclude_category_id))
 					{
 						$can_output = FALSE;
 						break;
@@ -1185,11 +1185,11 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($categories as $cat)
 				{
-					if 
+					if
 					(
 						in_array($cat->slug,$this->exclude_category) OR
 						in_array($cat->name,$this->exclude_category)
-					) 
+					)
 					{
 						$can_output = FALSE;
 						break;
@@ -1201,7 +1201,7 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($tags as $tag)
 				{
-					if (in_array($tag->term_id,$this->exclude_tag_id)) 
+					if (in_array($tag->term_id,$this->exclude_tag_id))
 					{
 						$can_output = FALSE;
 						break;
@@ -1213,11 +1213,11 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($tags as $tag)
 				{
-					if 
+					if
 					(
-						in_array($tag->slug,$this->exclude_tag) OR 
+						in_array($tag->slug,$this->exclude_tag) OR
 						in_array($tag->name,$this->exclude_tag)
-					) 
+					)
 					{
 						$can_output = FALSE;
 						break;
@@ -1227,7 +1227,7 @@ class WPAlchemy_MetaBox
 
 			if (!empty($this->exclude_post_id))
 			{
-				if (in_array($post_id,$this->exclude_post_id)) 
+				if (in_array($post_id,$this->exclude_post_id))
 				{
 					$can_output = FALSE;
 				}
@@ -1235,13 +1235,13 @@ class WPAlchemy_MetaBox
 
 			// excludes are not set use "include only" mode
 
-			if 
+			if
 			(
-				empty($this->exclude_template) AND 
-				empty($this->exclude_category_id) AND 
-				empty($this->exclude_category) AND 
-				empty($this->exclude_tag_id) AND 
-				empty($this->exclude_tag) AND 
+				empty($this->exclude_template) AND
+				empty($this->exclude_category_id) AND
+				empty($this->exclude_category) AND
+				empty($this->exclude_tag_id) AND
+				empty($this->exclude_tag) AND
 				empty($this->exclude_post_id)
 			)
 			{
@@ -1250,7 +1250,7 @@ class WPAlchemy_MetaBox
 
 			if (!empty($this->include_template))
 			{
-				if (in_array($template_file,$this->include_template)) 
+				if (in_array($template_file,$this->include_template))
 				{
 					$can_output = TRUE;
 				}
@@ -1260,7 +1260,7 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($categories as $cat)
 				{
-					if (in_array($cat->term_id,$this->include_category_id)) 
+					if (in_array($cat->term_id,$this->include_category_id))
 					{
 						$can_output = TRUE;
 						break;
@@ -1272,7 +1272,7 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($categories as $cat)
 				{
-					if 
+					if
 					(
 						in_array($cat->slug,$this->include_category) OR
 						in_array($cat->name,$this->include_category)
@@ -1288,7 +1288,7 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($tags as $tag)
 				{
-					if (in_array($tag->term_id,$this->include_tag_id)) 
+					if (in_array($tag->term_id,$this->include_tag_id))
 					{
 						$can_output = TRUE;
 						break;
@@ -1300,11 +1300,11 @@ class WPAlchemy_MetaBox
 			{
 				foreach ($tags as $tag)
 				{
-					if 
+					if
 					(
 						in_array($tag->slug,$this->include_tag) OR
 						in_array($tag->name,$this->include_tag)
-					) 
+					)
 					{
 						$can_output = TRUE;
 						break;
@@ -1314,7 +1314,7 @@ class WPAlchemy_MetaBox
 
 			if (!empty($this->include_post_id))
 			{
-				if (in_array($post_id,$this->include_post_id)) 
+				if (in_array($post_id,$this->include_post_id))
 				{
 					$can_output = TRUE;
 				}
@@ -1346,7 +1346,7 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_global_foot()
 	 */
-	function _global_head()
+	static function _global_head()
 	{
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
@@ -1361,7 +1361,7 @@ class WPAlchemy_MetaBox
 		jQuery(function($)
 		{
 			$(document).click(function(e)
-			{		
+			{
 				var elem = $(e.target);
 
 				if (elem.attr('class') && elem.filter('[class*=dodelete]').length)
@@ -1385,9 +1385,9 @@ class WPAlchemy_MetaBox
 						{
 							elem.parents('.wpa_group').remove();
 						}
-						
+
 						var the_group = elem.parents('.wpa_group');
-						
+
 						if(the_group && the_group.attr('class'))
 						{
 							the_name = the_group.attr('class').match(/wpa_group-([a-zA-Z0-9_-]*)/i);
@@ -1487,7 +1487,7 @@ class WPAlchemy_MetaBox
 					}
 				}
 			}
-			
+
 			/* do an initial limit check, show or hide buttons */
 			$('[class*=docopy-]').each(function()
 			{
@@ -1510,7 +1510,7 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_global_head()
 	 */
-	function _global_foot()
+	static function _global_foot()
 	{
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
@@ -1588,7 +1588,7 @@ class WPAlchemy_MetaBox
 		if ( ! empty($fields) AND is_array($fields))
 		{
 			$meta = array();
-			
+
 			foreach ($fields as $field)
 			{
 				$field_noprefix = preg_replace('/^' . $this->prefix . '/i', '', $field);
@@ -1639,7 +1639,7 @@ class WPAlchemy_MetaBox
 	function have_value($n = NULL)
 	{
 		if ($this->get_the_value($n)) return TRUE;
-		
+
 		return FALSE;
 	}
 
@@ -1763,7 +1763,7 @@ class WPAlchemy_MetaBox
 
 			if (!is_null($n)) $the_field = $this->id . '[' . $this->name . '][' . $this->current . '][' . $n . ']' ;
 
-			else $the_field = $this->id . '[' . $this->name . '][' . $this->current . ']' ;	
+			else $the_field = $this->id . '[' . $this->name . '][' . $this->current . ']' ;
 		}
 		else
 		{
@@ -2004,7 +2004,7 @@ class WPAlchemy_MetaBox
 		$loop_open = NULL;
 
 		$loop_open_classes = array('wpa_loop', 'wpa_loop-' . $this->name);
-		
+
 		$css_class = array('wpa_group', 'wpa_group-'. $this->name);
 
 		if ($this->is_first())
@@ -2050,12 +2050,12 @@ class WPAlchemy_MetaBox
 	function get_the_group_close()
 	{
 		$loop_close = NULL;
-		
+
 		if ($this->is_last())
 		{
 			$loop_close = '</div>';
 		}
-		
+
 		return '</' . $this->group_tag . '>' . $loop_close;
 	}
 
@@ -2069,7 +2069,7 @@ class WPAlchemy_MetaBox
 		{
 			// use as stdClass object
 			$options = (object)$options;
-			
+
 			$length = @$options->length;
 
 			$this->_loop_data->limit = @$options->limit;
@@ -2120,13 +2120,13 @@ class WPAlchemy_MetaBox
 		{
 			$this->in_loop = TRUE;
 		}
-		
+
 		$this->name = $n;
 
 		$cnt = count(!empty($this->meta[$n])?$this->meta[$n]:NULL);
 
 		$length = is_null($length) ? $cnt : $length ;
-		
+
 		if ($this->in_loop == 'multi' AND $cnt > $length) $length = $cnt;
 
 		$this->length = $length;
@@ -2171,11 +2171,11 @@ class WPAlchemy_MetaBox
 	 * @since	1.0
 	 * @access	private
 	 */
-	function _save($post_id) 
+	function _save($post_id)
 	{
 		/**
-		 * note: the "save_post" action fires for saving revisions and post/pages, 
-		 * when saving a post this function fires twice, once for a revision save, 
+		 * note: the "save_post" action fires for saving revisions and post/pages,
+		 * when saving a post this function fires twice, once for a revision save,
 		 * and again for the post/page save ... the $post_id is different for the
 		 * revision save, this means that "get_post_meta()" will not work if trying
 		 * to get values for a revision (as it has no post meta data)
@@ -2187,29 +2187,29 @@ class WPAlchemy_MetaBox
 		 */
 
 		$real_post_id = isset($_POST['post_ID']) ? $_POST['post_ID'] : NULL ;
-		
+
 		// check autosave
 		if (defined('DOING_AUTOSAVE') AND DOING_AUTOSAVE AND !$this->autosave) return $post_id;
-	 
+
 		// make sure data came from our meta box, verify nonce
 		$nonce = isset($_POST[$this->id.'_nonce']) ? $_POST[$this->id.'_nonce'] : NULL ;
 		if (!wp_verify_nonce($nonce, $this->id)) return $post_id;
-	 
+
 		// check user permissions
-		if ($_POST['post_type'] == 'page') 
+		if ($_POST['post_type'] == 'page')
 		{
 			if (!current_user_can('edit_page', $post_id)) return $post_id;
 		}
-		else 
+		else
 		{
 			if (!current_user_can('edit_post', $post_id)) return $post_id;
 		}
-	 
+
 		// authentication passed, save data
-	 
+
 		$new_data = isset( $_POST[$this->id] ) ? $_POST[$this->id] : NULL ;
-	 
-		WPAlchemy_MetaBox::clean($new_data);
+
+		$this->clean($new_data);
 
 		if (empty($new_data))
 		{
@@ -2242,7 +2242,7 @@ class WPAlchemy_MetaBox
 				foreach ($new_data as $k => $v)
 				{
 					$field = $this->prefix . $k;
-					
+
 					array_push($new_fields,$field);
 
 					$new_value = $new_data[$k];
@@ -2324,25 +2324,25 @@ class WPAlchemy_MetaBox
 		{
 			foreach ($arr as $i => $v)
 			{
-				if (is_array($arr[$i])) 
+				if (is_array($arr[$i]))
 				{
 					WPAlchemy_MetaBox::clean($arr[$i]);
-	 
-					if (!count($arr[$i])) 
+
+					if (!count($arr[$i]))
 					{
 						unset($arr[$i]);
 					}
 				}
-				else 
+				else
 				{
-					if ('' == trim($arr[$i]) OR is_null($arr[$i])) 
+					if ('' == trim($arr[$i]) OR is_null($arr[$i]))
 					{
 						unset($arr[$i]);
 					}
 				}
 			}
 
-			if (!count($arr)) 
+			if (!count($arr))
 			{
 				$arr = array();
 			}
@@ -2354,7 +2354,7 @@ class WPAlchemy_MetaBox
 
 				foreach ($keys as $key)
 				{
-					if (!is_numeric($key)) 
+					if (!is_numeric($key))
 					{
 						$is_numeric = FALSE;
 						break;

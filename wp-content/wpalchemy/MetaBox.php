@@ -2318,7 +2318,7 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @param	array the array to clean (passed by reference)
 	 */
-	function clean(&$arr)
+	static function clean(&$arr)
 	{
 		if (is_array($arr))
 		{

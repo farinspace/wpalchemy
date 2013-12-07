@@ -88,20 +88,6 @@
 			$this->$n = $v;
 		}
 		
-		// Get current post ID
-		
-		if ( isset( $_REQUEST['post'] ) ) {
-			$post = get_post( $_REQUEST['post'] );
-		
-		// Check post type support for thumbnails, call wp_enqueue_media() scripts if thumbnails not supported.
-		
-		if(!post_type_supports( $post->post_type, 'thumbnail' ) && function_exists('wp_enqueue_media')) {
-			if(!wp_script_is('jquery')){
-				wp_enqueue_script('jquery');
-			}
-			wp_enqueue_media();
-		}
-		
 		if ( ! defined('WPALCHEMY_SEND_TO_EDITOR_ENABLED'))
 		{
 			add_action('admin_footer', array($this, 'init'));
@@ -109,7 +95,6 @@
 			define('WPALCHEMY_SEND_TO_EDITOR_ENABLED', true);
 		}
 		
-		}
 	}
 
 	/**
@@ -342,12 +327,27 @@
 	 */
 	public function init()
 	{
+		global $post_ID;
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
 		$file = basename(parse_url($uri, PHP_URL_PATH));
 		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
 		{
-			// include javascript for special functionality
+			
+		
+		// Get current post ID
+		
+		$post = get_post( $post_ID );
+		
+		// Check post type support for thumbnails, call wp_enqueue_media() scripts if thumbnails not supported.
+		
+		if(!post_type_supports( $post->post_type, 'thumbnail' ) && function_exists('wp_enqueue_media')) {
+			if(!wp_script_is('custom-header')){
+				wp_enqueue_script('custom-header');
+			}
+			wp_enqueue_media();
+		}
+		// include javascript for special functionality
 			?>
 <script type="text/javascript">
 			/* <![CDATA[ */

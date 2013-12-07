@@ -220,7 +220,14 @@
 
 		$tab = ! empty($tab) ? $tab : 'library' ;
 		
-		return 'media-upload.php?post_id=' . $post_ID . '&tab=' . $tab . '&TB_iframe=1';
+		$update_href = esc_url( add_query_arg( array(
+			'post_id' => $post_ID,
+			'tab' => $tab,
+			'TB_iframe' => 1,
+			'_wpnonce' => wp_create_nonce('shiba_gallery_options'),
+			), admin_url('upload.php') ) );
+		
+		return $update_href;
 	}
 
 	/**
@@ -306,15 +313,13 @@
 		{
 			array_push($elem_attr, $n . '="' . $v . '"');
 		}
-		$modal_update_href = esc_url( add_query_arg( array(
-			'_wpnonce' => wp_create_nonce( 'media-access' ),
-			),
-			admin_url( 'media-upload.php' ) ) );
+		
+		$link = $this->getButtonLink();
 
 
 		###
 		//return '<input type="button" ' . implode(' ', $elem_attr) . ' value="' .$label. '" />';
-		return '<a href="'.$modal_update_href.'" ' . implode(' ', $elem_attr) . '>'.$label.'</a>';
+		return '<a href="'.$link.'" ' . implode(' ', $elem_attr) . '>'.$label.'</a>';
 	}
 
 	/**

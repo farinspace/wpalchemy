@@ -13,9 +13,8 @@
 // todo: perhaps move _global_head and _global_foot locally, when first run
 // define a constant to prevent other instances from running again ...
 
-add_action('admin_head', array('WPAlchemy_MetaBox', '_global_head'));
-
-add_action('admin_footer', array('WPAlchemy_MetaBox', '_global_foot'));
+//add_action('admin_head', array('WPAlchemy_MetaBox', '_global_head'));
+//add_action('admin_footer', array('WPAlchemy_MetaBox', '_global_foot'));
 
 define('WPALCHEMY_MODE_ARRAY', 'array');
 
@@ -447,6 +446,9 @@ class WPAlchemy_MetaBox
 	
 	function WPAlchemy_MetaBox($arr)
 	{
+        add_action('admin_head', array($this, '_global_head'));
+        add_action('admin_footer', array($this, '_global_foot'));
+        
 		$this->_loop_data = new stdClass;
 		
 		$this->meta = array();
@@ -557,7 +559,7 @@ class WPAlchemy_MetaBox
 	function _init()
 	{
 		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
+		if ( ! self::_is_post() AND ! self::_is_page()) return;
 		
 		if ( ! empty($this->output_filter))
 		{
@@ -981,9 +983,9 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_page()
 	 */
-	function _is_post()
+	static function _is_post()
 	{
-		if ('post' == WPAlchemy_MetaBox::_is_post_or_page())
+		if ('post' == self::_is_post_or_page())
 		{
 			return TRUE;
 		}
@@ -1000,9 +1002,9 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_post()
 	 */
-	function _is_page()
+	static function _is_page()
 	{
-		if ('page' == WPAlchemy_MetaBox::_is_post_or_page())
+		if ('page' == self::_is_post_or_page())
 		{
 			return TRUE;
 		}
@@ -1019,9 +1021,9 @@ class WPAlchemy_MetaBox
 	 * @return	string "post" or "page"
 	 * @see		_is_post(), _is_page()
 	 */
-	function _is_post_or_page()
+	static function _is_post_or_page()
 	{
-		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
+		$post_type = self::_get_current_post_type();
 
 		if (isset($post_type))
 		{
@@ -1046,9 +1048,9 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.6
 	 * @return	string [custom_post_type], page or post
 	 */
-	function _get_current_post_type()
+	static function _get_current_post_type()
 	{
-		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
 		if ( isset( $uri ) )
 		{
@@ -1058,7 +1060,7 @@ class WPAlchemy_MetaBox
 
 			if ($uri AND in_array($file, array('post.php', 'post-new.php')))
 			{
-				$post_id = WPAlchemy_MetaBox::_get_post_id();
+				$post_id = self::_get_post_id();
 
 				$post_type = isset($_GET['post_type']) ? $_GET['post_type'] : NULL ;
 
@@ -1086,7 +1088,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.8
 	 * @return	int post ID
 	 */
-	function _get_post_id()
+	static function _get_post_id()
 	{
 		global $post;
 
@@ -1349,7 +1351,7 @@ class WPAlchemy_MetaBox
 	function _global_head()
 	{
 		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
+		if ( ! self::_is_post() AND ! self::_is_page()) return;
 
 		// todo: you're assuming people will want to use this exact functionality
 		// consider giving a developer access to change this via hooks/callbacks
@@ -1513,7 +1515,7 @@ class WPAlchemy_MetaBox
 	function _global_foot()
 	{
 		// must be creating or editing a post or page
-		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
+		if ( ! self::_is_post() AND ! self::_is_page()) return;
 
 		?>
 		<script type="text/javascript">

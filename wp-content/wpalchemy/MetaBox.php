@@ -981,7 +981,7 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_page()
 	 */
-	function _is_post()
+	static function _is_post()
 	{
 		if ('post' == WPAlchemy_MetaBox::_is_post_or_page())
 		{
@@ -1000,7 +1000,7 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		_is_post()
 	 */
-	function _is_page()
+	static function _is_page()
 	{
 		if ('page' == WPAlchemy_MetaBox::_is_post_or_page())
 		{
@@ -1019,7 +1019,7 @@ class WPAlchemy_MetaBox
 	 * @return	string "post" or "page"
 	 * @see		_is_post(), _is_page()
 	 */
-	function _is_post_or_page()
+	static function _is_post_or_page()
 	{
 		$post_type = WPAlchemy_MetaBox::_get_current_post_type();
 
@@ -1046,7 +1046,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.6
 	 * @return	string [custom_post_type], page or post
 	 */
-	function _get_current_post_type()
+	static function _get_current_post_type()
 	{
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
@@ -1086,7 +1086,7 @@ class WPAlchemy_MetaBox
 	 * @since	1.4.8
 	 * @return	int post ID
 	 */
-	function _get_post_id()
+	static function _get_post_id()
 	{
 		global $post;
 
@@ -1346,7 +1346,7 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_global_foot()
 	 */
-	function _global_head()
+	static function _global_head()
 	{
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
@@ -1510,7 +1510,7 @@ class WPAlchemy_MetaBox
 	 * @access	private
 	 * @see		_global_head()
 	 */
-	function _global_foot()
+	static function _global_foot()
 	{
 		// must be creating or editing a post or page
 		if ( ! WPAlchemy_MetaBox::_is_post() AND ! WPAlchemy_MetaBox::_is_page()) return;
@@ -2318,7 +2318,7 @@ class WPAlchemy_MetaBox
 	 * @access	public
 	 * @param	array the array to clean (passed by reference)
 	 */
-	function clean(&$arr)
+	static function clean(&$arr)
 	{
 		if (is_array($arr))
 		{

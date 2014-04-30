@@ -1866,7 +1866,7 @@ class WPAlchemy_MetaBox
 	 * @return	bool
 	 * @see		is_value()
 	 */
-	function is_selected($n, $v = NULL)
+	function is_selected($n, $v = NULL, $is_default = FALSE)
 	{
 		if (is_null($v))
 		{
@@ -1888,6 +1888,11 @@ class WPAlchemy_MetaBox
 			return TRUE;
 		}
 
+		if( empty( $the_value ) && $is_default )
+		{
+			return TRUE;
+		}
+		
 		return FALSE;
 	}
 
@@ -1901,9 +1906,9 @@ class WPAlchemy_MetaBox
 	 * @param	string $v optional the value to check for
 	 * @see		get_the_checkbox_state()
 	 */
-	function the_checkbox_state($n, $v = NULL)
+	function the_checkbox_state($n, $v = NULL, $is_default = FALSE)
 	{
-		echo $this->get_the_checkbox_state($n, $v);
+		echo $this->get_the_checkbox_state($n, $v, $is_default);
 	}
 
 	/**
@@ -1917,9 +1922,9 @@ class WPAlchemy_MetaBox
 	 * @return	string suitable to be used inline within the INPUT tag
 	 * @see		the_checkbox_state()
 	 */
-	function get_the_checkbox_state($n, $v = NULL)
+	function get_the_checkbox_state($n, $v = NULL, $is_default = FALSE)
 	{
-		if ($this->is_selected($n, $v)) return ' checked="checked"';
+		if ($this->is_selected($n, $v, $is_default)) return ' checked="checked"';
 	}
 
 	/**
@@ -1932,9 +1937,9 @@ class WPAlchemy_MetaBox
 	 * @param	string $v optional the value to check for
 	 * @see		get_the_radio_state()
 	 */
-	function the_radio_state($n, $v = NULL)
+	function the_radio_state($n, $v = NULL, $is_default = FALSE)
 	{
-		echo $this->get_the_checkbox_state($n, $v);
+		echo $this->get_the_checkbox_state($n, $v, $is_default);
 	}
 
 	/**
@@ -1948,9 +1953,9 @@ class WPAlchemy_MetaBox
 	 * @return	string suitable to be used inline within the INPUT tag
 	 * @see		the_radio_state()
 	 */
-	function get_the_radio_state($n, $v = NULL)
+	function get_the_radio_state($n, $v = NULL, $is_default = FALSE)
 	{
-		return $this->get_the_checkbox_state($n, $v);
+		return $this->get_the_checkbox_state($n, $v, $is_default);
 	}
 
 	/**
@@ -1963,9 +1968,9 @@ class WPAlchemy_MetaBox
 	 * @param	string $v optional the value to check for
 	 * @see		get_the_select_state()
 	 */
-	function the_select_state($n, $v = NULL)
+	function the_select_state($n, $v = NULL, $is_default = FALSE)
 	{
-		echo $this->get_the_select_state($n, $v);
+		echo $this->get_the_select_state($n, $v, $is_default);
 	}
 
 	/**
@@ -1979,9 +1984,9 @@ class WPAlchemy_MetaBox
 	 * @return	string suitable to be used inline within the SELECT tag
 	 * @see		the_select_state()
 	 */
-	function get_the_select_state($n, $v = NULL)
+	function get_the_select_state($n, $v = NULL, $is_default = FALSE)
 	{
-		if ($this->is_selected($n, $v)) return ' selected="selected"';
+		if ($this->is_selected($n, $v, $is_default)) return ' selected="selected"';
 	}
 
 	/**

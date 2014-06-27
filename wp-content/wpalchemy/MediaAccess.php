@@ -44,6 +44,17 @@
 	public $insert_button_label = null;
 
 	/**
+	 * User defined label for the "Add Media" button, this
+	 * can be set once or per field and button pair.
+	 *
+	 * @since	0.1
+	 * @access	public
+	 * @var		string optional
+	 * @see		setInsertButtonLabel()
+	 */
+	public $button_label = null;
+
+	/**
 	 * Used to track the current groupname for pairing a field and button.
 	 *
 	 * @since	0.1
@@ -83,6 +94,7 @@
 
 			define('WPALCHEMY_SEND_TO_EDITOR_ENABLED', true);
 		}
+
 	}
 
 	/**
@@ -110,6 +122,13 @@
 	public function setInsertButtonLabel($label = 'Insert')
 	{
 		$this->insert_button_label = $label;
+
+		return $this;
+	}
+
+	public function setButtonLabel($button = 'Add Media')
+	{
+		$this->button_label = $button;
 
 		return $this;
 	}
@@ -151,7 +170,7 @@
 	public function getField(array $attr)
 	{
 		$groupname = isset($attr['groupname']) ? $attr['groupname'] : $this->groupname ;
-		
+
 		$attr_default = array
 		(
 			'type' => 'text',
@@ -200,8 +219,15 @@
 		$tab = ! empty($tab) ? $tab : $this->tab ;
 
 		$tab = ! empty($tab) ? $tab : 'library' ;
-		
-		return 'media-upload.php?post_id=' . $post_ID . '&tab=' . $tab . '&TB_iframe=1';
+
+		$update_href = esc_url( add_query_arg( array(
+			'post_id' => $post_ID,
+			'tab' => $tab,
+			'TB_iframe' => 1,
+			'_wpnonce' => wp_create_nonce('shiba_gallery_options'),
+			), admin_url('upload.php') ) );
+
+		return $update_href;
 	}
 
 	/**
@@ -218,8 +244,8 @@
 	public function getButtonClass($groupname = null)
 	{
 		$groupname = isset($groupname) ? $groupname : $this->groupname ;
-		
-		return $this->button_class_name . '-' . $groupname . ' thickbox';
+
+		return $this->button_class_name . '-' . $groupname . ' ';
 	}
 
 	/**
@@ -254,17 +280,16 @@
 		$groupname = isset($attr['groupname']) ? $attr['groupname'] : $this->groupname ;
 
 		$tab = isset($attr['tab']) ? $attr['tab'] : $this->tab ;
-		
+
 		$attr_default = array
 		(
-			'label' => 'Add Media',
-			'href' => $this->getButtonLink($tab),
+			'label' => $this->button_label,
 			'class' => $this->getButtonClass($groupname) . ' button',
 		);
 
 		if (isset($this->insert_button_label))
 		{
-			$attr_default['class'] .= " {label:'" . $this->insert_button_label . "'}";
+			$attr_default['data-update'] = $this->insert_button_label;
 		}
 
 		###
@@ -289,9 +314,12 @@
 			array_push($elem_attr, $n . '="' . $v . '"');
 		}
 
-		###
+		$link = $this->getButtonLink();
 
-		return '<a ' . implode(' ', $elem_attr) . '>' . $label . '</a>';
+
+		###
+		//return '<input type="button" ' . implode(' ', $elem_attr) . ' value="' .$label. '" />';
+		return '<a href="'.$link.'" ' . implode(' ', $elem_attr) . '>'.$label.'</a>';
 	}
 
 	/**
@@ -304,109 +332,87 @@
 	 */
 	public function init()
 	{
+		global $post_ID;
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL ;
 
 		$file = basename(parse_url($uri, PHP_URL_PATH));
-
 		if ($uri AND in_array($file, array('post.php', 'post-new.php')))
 		{
-			// include javascript for special functionality
-			?><script type="text/javascript">
+
+
+		// Get current post ID
+
+		$post = get_post( $post_ID );
+
+		// Check post type support for thumbnails, call wp_enqueue_media() scripts if thumbnails not supported.
+
+		if(!post_type_supports( $post->post_type, 'thumbnail' ) && function_exists('wp_enqueue_media')) {
+			if(!wp_script_is('custom-header')){
+				wp_enqueue_script('custom-header');
+			}
+			wp_enqueue_media();
+		}
+		// include javascript for special functionality
+			?>
+<script type="text/javascript">
 			/* <![CDATA[ */
 
-				var interval = null;
 
 				jQuery(function($)
 				{
-					if (typeof send_to_editor === 'function')
-					{
 						var wpalchemy_insert_button_label = '';
 
 						var wpalchemy_mediafield = null;
 
-						var wpalchemy_send_to_editor_default = send_to_editor;
+						//Create WP media frame.
 
-						send_to_editor = function(html)
+						var customMediaManager;
+
+						var formlabel = 0;
+
+						$('[class*=<?php echo $this->button_class_name; ?>]').live('click', function(e)
 						{
-							clearInterval(interval);
+							e.preventDefault();
 
-							if (wpalchemy_mediafield)
-							{
-								var src = html.match(/src=['|"](.*?)['|"] alt=/i);
-								src = (src && src[1]) ? src[1] : '' ;
-
-								var href = html.match(/href=['|"](.*?)['|"]/i);
-								href = (href && href[1]) ? href[1] : '' ;
-
-								var url = src ? src : href ;
-
-								wpalchemy_mediafield.val(url);
-
-								// reset insert button label
-								setInsertButtonLabel(wpalchemy_insert_button_label);
-
-								wpalchemy_mediafield = null;
-							}
-							else
-							{
-								wpalchemy_send_to_editor_default(html);
+							// If the frame already exists, re-open it.
+							if ( customMediaManager ) {
+								customMediaManager.open();
+							return;
 							}
 
-							tb_remove();
-						}
+							// Get our Button element
+							formlabel = jQuery(this);
 
-						function getInsertButtonLabel()
-						{
-							return $('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val();
-						}
+							// Get our Form element
+							form = jQuery(this).parent();
 
-						function setInsertButtonLabel(label)
-						{
-							$('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').val(label);
-						}
+							var customMediaManager = wp.media.frames.customMediaManager = wp.media({
+								 //Title of media manager frame
+								 title: "Upload Document",
+								 library: {
+									type: ''
+								 },
+								 frame: 'select',
+								 button: {
+									//Set Button text
+									text: formlabel.attr("data-update")
+								 },
+								 //Do not allow multiple files, if you want multiple, set true
+								 multiple: false
+							});
+							customMediaManager.on('select', function(){
+								//Set text box value
+								var media_attachment = customMediaManager.state().get('selection').first().toJSON();
+								form.find('input[type="text"]').val(media_attachment.url);
+							});
 
-						$('[class*="<?php echo $this->button_class_name; ?>"]').on('click', function()
-						{
-							var name = $(this).attr('class').match(/<?php echo $this->button_class_name; ?>-([a-zA-Z0-9_-]*)/i);
-							name = (name && name[1]) ? name[1] : '' ;
-
-							var data = $(this).attr('class').match(/({.*})/i);
-							data = (data && data[1]) ? data[1] : '' ;
-							data = eval("(" + (data.indexOf('{') < 0 ? '{' + data + '}' : data) + ")");
-
-							wpalchemy_mediafield = $('.<?php echo $this->field_class_name; ?>-' + name, $(this).closest('.postbox'));
-
-							function iframeSetup()
-							{
-								if ($('#TB_iframeContent').contents().find('.media-item .savesend input[type=submit], #insertonlybutton').length)
-								{
-									// run once
-									if ( ! wpalchemy_insert_button_label.length)
-									{
-										wpalchemy_insert_button_label = getInsertButtonLabel();
-									}
-
-									setInsertButtonLabel((data && data.label)?data.label:'Insert');
-
-									// tab "type" needs a timer in order to properly change the button label
-
-									//clearInterval(interval);
-
-									// setup iframe.load as soon as it becomes available
-									// prevent multiple binds
-									//$('#TB_iframeContent').unbind('load', iframeSetup).bind('load', iframeSetup);
-								}
-							}
-
-							clearInterval(interval);
-
-							interval = setInterval(iframeSetup, 500);
-						});
-					}
+							customMediaManager.open();
+						})
 				});
 
 			/* ]]> */
-			</script><?php
+			</script>
+<?php
 		}
 	}
 }

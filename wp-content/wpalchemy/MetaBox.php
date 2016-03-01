@@ -921,7 +921,6 @@ class WPAlchemy_MetaBox
     /**
      * Used to check if creating a new post or editing one
      *
-     * @static
      * @since   1.3.7
      * @return  bool
      * @see     _is_page()
@@ -939,7 +938,6 @@ class WPAlchemy_MetaBox
     /**
      * Used to check if creating a new page or editing one
      *
-     * @static
      * @since   1.3.7
      * @return  bool
      * @see     _is_post()
@@ -957,7 +955,6 @@ class WPAlchemy_MetaBox
     /**
      * Used to check if creating or editing a post or page
      *
-     * @static
      * @since   1.3.8
      * @return  string "post" or "page"
      * @see     _is_post(), _is_page()
@@ -985,7 +982,6 @@ class WPAlchemy_MetaBox
      * Used to check for the current post type, works when creating or editing a
      * new post, page or custom post type.
      *
-     * @static
      * @since   1.4.6
      * @return  string [custom_post_type], page or post
      */
@@ -1025,7 +1021,6 @@ class WPAlchemy_MetaBox
     /**
      * Used to get the current post id.
      *
-     * @static
      * @since   1.4.8
      * @return  int post ID
      */
@@ -1284,7 +1279,6 @@ class WPAlchemy_MetaBox
      * Used to insert global STYLE or SCRIPT tags into the head, called on
      * WordPress admin_footer action.
      *
-     * @static
      * @since   1.3
      * @see     _global_foot()
      */
@@ -1447,7 +1441,6 @@ class WPAlchemy_MetaBox
      * Used to insert global SCRIPT tags into the footer, called on WordPress
      * admin_footer action.
      *
-     * @static
      * @since   1.3
      * @see     _global_head()
      */
@@ -2228,7 +2221,6 @@ class WPAlchemy_MetaBox
     /**
      * Cleans an array, removing blank ('') values
      *
-     * @static
      * @since   1.0
      * @param   array the array to clean (passed by reference)
      */

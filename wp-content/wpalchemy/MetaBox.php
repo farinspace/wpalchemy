@@ -433,6 +433,7 @@ class WPAlchemy_MetaBox
 	var $in_loop = FALSE;
 	var $in_template = FALSE;
 	var $group_tag;
+	var $loop_wrap;
 	var $current_post_id;
 
 	/**
@@ -1993,18 +1994,19 @@ class WPAlchemy_MetaBox
 	 * @since	1.1
 	 * @access	public
 	 */
-	function the_group_open($t = 'div')
+	function the_group_open($t = 'div', $loop_wrap = 'div')
 	{
-		echo $this->get_the_group_open($t);
+		echo $this->get_the_group_open($t, $loop_wrap);
 	}
 
 	/**
 	 * @since	1.1
 	 * @access	public
 	 */
-	function get_the_group_open($t = 'div')
+	function get_the_group_open($t = 'div', $loop_wrap = 'div')
 	{
 		$this->group_tag = $t;
+		$this->loop_wrap = $loop_wrap;
 
 		$loop_open = NULL;
 
@@ -2023,7 +2025,7 @@ class WPAlchemy_MetaBox
 				array_push($loop_open_classes, 'wpa_loop_limit-' . $this->_loop_data->limit);
 			}
 
-			$loop_open = '<div id="wpa_loop-'. $this->name .'" class="' . implode(' ', $loop_open_classes) . '">';
+			$loop_open = '<' .$loop_wrap. ' id="wpa_loop-'. $this->name .'" class="' . implode(' ', $loop_open_classes) . '">';
 		}
 
 		if ($this->is_last())
@@ -2058,7 +2060,7 @@ class WPAlchemy_MetaBox
 		
 		if ($this->is_last())
 		{
-			$loop_close = '</div>';
+			$loop_close = '</'.$this->loop_wrap.'>';
 		}
 		
 		return '</' . $this->group_tag . '>' . $loop_close;

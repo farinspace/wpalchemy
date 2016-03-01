@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @author		Dimas Begunoff
- * @copyright	Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
- * @license		http://en.wikipedia.org/wiki/MIT_License The MIT License
- * @package		WPAlchemy
- * @version		1.5.3
- * @link		http://github.com/farinspace/wpalchemy
- * @link		http://farinspace.com
+ * @author      Dimas Begunoff
+ * @copyright   Copyright (c) 2009, Dimas Begunoff, http://farinspace.com
+ * @license     http://en.wikipedia.org/wiki/MIT_License The MIT License
+ * @package     WPAlchemy
+ * @version     1.5.3
+ * @link        http://github.com/farinspace/wpalchemy
+ * @link        http://farinspace.com
  */
 
 // todo: perhaps move _global_head and _global_foot locally, when first run
@@ -59,8 +59,8 @@ class WPAlchemy_MetaBox
      * prevent option(s) form showing up in the custom fields meta box, this
      * option should be used when instantiating the class.
      *
-     * @since	1.0
-     * @var		string required
+     * @since   1.0
+     * @var     string required
      */
     public $id;
 
@@ -68,9 +68,9 @@ class WPAlchemy_MetaBox
      * Used to set the title of the meta box, this option should be used when
      * instantiating the class.
      *
-     * @since	1.0
-     * @var		string required
-     * @see		$hide_title
+     * @since   1.0
+     * @var     string required
+     * @see     $hide_title
      */
     public $title = 'Custom Meta';
 
@@ -79,8 +79,8 @@ class WPAlchemy_MetaBox
      * defined within this file, this option should be used when instantiating
      * the class.
      *
-     * @since	1.0
-     * @var		string required
+     * @since   1.0
+     * @var     string required
      */
     public $template;
 
@@ -88,26 +88,26 @@ class WPAlchemy_MetaBox
      * Used to set the post types that the meta box can appear in, this option
      * should be used when instantiating the class.
      *
-     * @since	1.0
-     * @var		array
+     * @since   1.0
+     * @var     array
      */
     public $types;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $context = 'normal';
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $priority = 'high';
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $autosave = TRUE;
 
@@ -119,8 +119,8 @@ class WPAlchemy_MetaBox
      * WPALCHEMY_MODE_ARRAY (default) and WPALCHEMY_MODE_EXTRACT, this option
      * should be used when instantiating the class.
      *
-     * @since	1.2
-     * @var		string
+     * @since   1.2
+     * @var     string
      */
     public $mode = WPALCHEMY_MODE_ARRAY;
 
@@ -130,80 +130,80 @@ class WPAlchemy_MetaBox
      * automatically add a prefix to your variables, this option should be used
      * when instantiating the class.
      *
-     * @since	1.2
-     * @var		array
+     * @since   1.2
+     * @var     array
      */
     public $prefix;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $exclude_template;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $exclude_category_id;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $exclude_category;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $exclude_tag_id;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $exclude_tag;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $exclude_post_id;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $include_template;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $include_category_id;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $include_category;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $include_tag_id;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $include_tag;
 
     /**
-     * @since	1.0
-     * @var		bool
+     * @since   1.0
+     * @var     bool
      */
     public $include_post_id;
 
@@ -212,8 +212,8 @@ class WPAlchemy_MetaBox
      * that this callback is executed only when the meta box is present, this
      * option should be used when instantiating the class.
      *
-     * @since	1.3.4
-     * @var		string|array optional
+     * @since   1.3.4
+     * @var     string|array optional
      */
     public $init_action;
 
@@ -222,10 +222,10 @@ class WPAlchemy_MetaBox
      * true or false to determine if the meta box should or should not be
      * displayed, this option should be used when instantiating the class.
      *
-     * @since	1.3
-     * @var		string|array optional
-     * @param	array $post_id first variable passed to the callback function
-     * @see		can_output()
+     * @since   1.3
+     * @var     string|array optional
+     * @param   array $post_id first variable passed to the callback function
+     * @see     can_output()
      */
     public $output_filter;
 
@@ -234,11 +234,11 @@ class WPAlchemy_MetaBox
      * saving by passing back FALSE (return FALSE), this option should be used
      * when instantiating the class.
      *
-     * @since	1.3
-     * @var		string|array optional
-     * @param	array $meta meta box data, first variable passed to the callback function
-     * @param	string $post_id second variable passed to the callback function
-     * @see		$save_action, add_filter()
+     * @since   1.3
+     * @var     string|array optional
+     * @param   array $meta meta box data, first variable passed to the callback function
+     * @param   string $post_id second variable passed to the callback function
+     * @see     $save_action, add_filter()
      */
     public $save_filter;
 
@@ -246,11 +246,11 @@ class WPAlchemy_MetaBox
      * Callback used to execute custom code after saving, this option should be
      * used when instantiating the class.
      *
-     * @since	1.3
-     * @var		string|array optional
-     * @param	array $meta meta box data, first variable passed to the callback function
-     * @param	string $post_id second variable passed to the callback function
-     * @see		$save_filter, add_filter()
+     * @since   1.3
+     * @var     string|array optional
+     * @param   array $meta meta box data, first variable passed to the callback function
+     * @param   string $post_id second variable passed to the callback function
+     * @see     $save_filter, add_filter()
      */
     public $save_action;
 
@@ -258,10 +258,10 @@ class WPAlchemy_MetaBox
      * Callback used to override or insert STYLE or SCRIPT tags into the head,
      * this option should be used when instantiating the class.
      *
-     * @since	1.3
-     * @var		string|array optional
-     * @param	array $content current head content, first variable passed to the callback function
-     * @see		$head_action, add_filter()
+     * @since   1.3
+     * @var     string|array optional
+     * @param   array $content current head content, first variable passed to the callback function
+     * @see     $head_action, add_filter()
      */
     public $head_filter;
 
@@ -269,9 +269,9 @@ class WPAlchemy_MetaBox
      * Callback used to insert STYLE or SCRIPT tags into the head,
      * this option should be used when instantiating the class.
      *
-     * @since	1.3
-     * @var		string|array optional
-     * @see		$head_filter, add_action()
+     * @since   1.3
+     * @var     string|array optional
+     * @see     $head_filter, add_action()
      */
     public $head_action;
 
@@ -279,10 +279,10 @@ class WPAlchemy_MetaBox
      * Callback used to override or insert SCRIPT tags into the footer, this
      * option should be used when instantiating the class.
      *
-     * @since	1.3
-     * @var		string|array optional
-     * @param	array $content current foot content, first variable passed to the callback function
-     * @see		$foot_action, add_filter()
+     * @since   1.3
+     * @var     string|array optional
+     * @param   array $content current foot content, first variable passed to the callback function
+     * @see     $foot_action, add_filter()
      */
     public $foot_filter;
 
@@ -290,9 +290,9 @@ class WPAlchemy_MetaBox
      * Callback used to insert SCRIPT tags into the footer, this option should
      * be used when instantiating the class.
      *
-     * @since	1.3
-     * @var		string|array optional
-     * @see		$foot_filter, add_action()
+     * @since   1.3
+     * @var     string|array optional
+     * @see     $foot_filter, add_action()
      */
     public $foot_action;
 
@@ -300,8 +300,8 @@ class WPAlchemy_MetaBox
      * Used to hide the default content editor in a page or post, this option
      * should be used when instantiating the class.
      *
-     * @since	1.3
-     * @var		bool optional
+     * @since   1.3
+     * @var     bool optional
      */
     public $hide_editor = FALSE;
 
@@ -309,8 +309,8 @@ class WPAlchemy_MetaBox
      * Used in conjunction with the "hide_editor" option, prevents the media
      * buttons from also being hidden.
      *
-     * @since	1.5
-     * @var		bool optional
+     * @since   1.5
+     * @var     bool optional
      */
     public $use_media_buttons = FALSE;
 
@@ -318,9 +318,9 @@ class WPAlchemy_MetaBox
      * Used to hide the meta box title, this option should be used when
      * instantiating the class.
      *
-     * @since	1.3
-     * @var		bool optional
-     * @see		$title
+     * @since   1.3
+     * @var     bool optional
+     * @see     $title
      */
     public $hide_title = FALSE;
 
@@ -329,8 +329,8 @@ class WPAlchemy_MetaBox
      * before_post_title, after_post_title, this option should be used when
      * instantiating the class.
      *
-     * @since		1.3.3
-     * @var			string optional possible values are: top, bottom, before_post_title, after_post_title
+     * @since   1.3.3
+     * @var     string optional possible values are: top, bottom, before_post_title, after_post_title
      */
     public $lock;
 
@@ -338,10 +338,10 @@ class WPAlchemy_MetaBox
      * Used to lock a meta box at top (below the default content editor), this
      * option should be used when instantiating the class.
      *
-     * @deprecated	deprecated since version 1.3.3
-     * @since		1.3
-     * @var			bool optional
-     * @see			$lock
+     * @deprecated  deprecated since version 1.3.3
+     * @since       1.3
+     * @var         bool optional
+     * @see         $lock
      */
     public $lock_on_top = FALSE;
 
@@ -349,10 +349,10 @@ class WPAlchemy_MetaBox
      * Used to lock a meta box at bottom, this option should be used when
      * instantiating the class.
      *
-     * @deprecated	deprecated since version 1.3.3
-     * @since		1.3
-     * @var			bool optional
-     * @see			$lock
+     * @deprecated  deprecated since version 1.3.3
+     * @since       1.3
+     * @var         bool optional
+     * @see         $lock
      */
     public $lock_on_bottom = FALSE;
 
@@ -361,8 +361,8 @@ class WPAlchemy_MetaBox
      * opened, closed, always_opened, this option should be used when
      * instantiating the class.
      *
-     * @since	1.3.3
-     * @var		string optional possible values are: opened, closed, always_opened
+     * @since   1.3.3
+     * @var     string optional possible values are: opened, closed, always_opened
      */
     public $view;
 
@@ -370,8 +370,8 @@ class WPAlchemy_MetaBox
      * Used to hide the show/hide checkbox option from the screen options area,
      * this option should be used when instantiating the class.
      *
-     * @since		1.3.4
-     * @var			bool optional
+     * @since   1.3.4
+     * @var     bool optional
      */
     public $hide_screen_option = FALSE;
 
@@ -384,9 +384,9 @@ class WPAlchemy_MetaBox
     /**
      * Used to provide field type hinting
      *
-     * @since	1.3
-     * @var		string
-     * @see		the_field()
+     * @since   1.3
+     * @var     string
+     * @see     the_field()
      */
     protected $hint;
 
@@ -400,9 +400,9 @@ class WPAlchemy_MetaBox
     /**
      * Used to store current loop details, cleared after loop ends
      *
-     * @since	1.4
-     * @var		stdClass
-     * @see		have_fields_and_multi(), have_fields()
+     * @since   1.4
+     * @var     stdClass
+     * @see     have_fields_and_multi(), have_fields()
      */
     protected $_loop_data;
 
@@ -475,7 +475,7 @@ class WPAlchemy_MetaBox
      * additionally will try to fix corrupted serialized data by recalculating
      * string length values
      *
-     * @since	1.3.16
+     * @since   1.3.16
      */
     public function _import($post_id, $key, $value)
     {
@@ -511,7 +511,7 @@ class WPAlchemy_MetaBox
      * Used to initialize the meta box, runs on WordPress admin_init action,
      * properly calls internal WordPress methods
      *
-     * @since	1.0
+     * @since   1.0
      */
     public function _init()
     {
@@ -586,8 +586,8 @@ class WPAlchemy_MetaBox
      * Used to insert STYLE or SCRIPT tags into the head, called on WordPress
      * admin_head action.
      *
-     * @since	1.3
-     * @see		_foot()
+     * @since   1.3
+     * @see     _foot()
      */
     public function _head()
     {
@@ -624,8 +624,8 @@ class WPAlchemy_MetaBox
      * Used to insert SCRIPT tags into the footer, called on WordPress
      * admin_footer action.
      *
-     * @since	1.3
-     * @see		_head()
+     * @since   1.3
+     * @see     _head()
      */
     public function _foot()
     {
@@ -762,8 +762,8 @@ class WPAlchemy_MetaBox
     /**
      * Used to setup the meta box content template
      *
-     * @since	1.0
-     * @see		_init()
+     * @since   1.0
+     * @see     _init()
      */
     public function _setup()
     {
@@ -791,9 +791,9 @@ class WPAlchemy_MetaBox
      * Used to properly prefix the filter tag, the tag is unique to the meta
      * box instance
      *
-     * @since	1.3
-     * @param	string $tag name of the filter
-     * @return	string uniquely prefixed tag name
+     * @since   1.3
+     * @param   string $tag name of the filter
+     * @return  string uniquely prefixed tag name
      */
     protected function _get_filter_tag($tag)
     {
@@ -807,8 +807,8 @@ class WPAlchemy_MetaBox
     /**
      * Uses WordPress add_filter() function, see WordPress add_filter()
      *
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L65
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L65
      */
     public function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1)
     {
@@ -819,8 +819,8 @@ class WPAlchemy_MetaBox
     /**
      * Uses WordPress has_filter() function, see WordPress has_filter()
      *
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L86
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L86
      */
     public function has_filter($tag, $function_to_check = FALSE)
     {
@@ -831,8 +831,8 @@ class WPAlchemy_MetaBox
     /**
      * Uses WordPress apply_filters() function, see WordPress apply_filters()
      *
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L134
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L134
      */
     public function apply_filters($tag, $value)
     {
@@ -844,8 +844,8 @@ class WPAlchemy_MetaBox
     /**
      * Uses WordPress remove_filter() function, see WordPress remove_filter()
      *
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L250
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L250
      */
     public function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1)
     {
@@ -857,9 +857,9 @@ class WPAlchemy_MetaBox
      * Used to properly prefix the action tag, the tag is unique to the meta
      * box instance
      *
-     * @since	1.3
-     * @param	string $tag name of the action
-     * @return	string uniquely prefixed tag name
+     * @since   1.3
+     * @param   string $tag name of the action
+     * @return  string uniquely prefixed tag name
      */
     protected function _get_action_tag($tag)
     {
@@ -873,8 +873,8 @@ class WPAlchemy_MetaBox
     /**
      * Uses WordPress add_action() function, see WordPress add_action()
      *
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L324
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L324
      */
     public function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1)
     {
@@ -885,8 +885,8 @@ class WPAlchemy_MetaBox
     /**
      * Uses WordPress has_action() function, see WordPress has_action()
      *
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L492
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L492
      */
     public function has_action($tag, $function_to_check = FALSE)
     {
@@ -897,8 +897,8 @@ class WPAlchemy_MetaBox
     /**
      * Uses WordPress remove_action() function, see WordPress remove_action()
      *
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L513
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L513
      */
     public function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1)
     {
@@ -908,8 +908,8 @@ class WPAlchemy_MetaBox
 
     /**
      * Uses WordPress do_action() function, see WordPress do_action()
-     * @since	1.3
-     * @link	http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L352
+     * @since   1.3
+     * @link    http://core.trac.wordpress.org/browser/trunk/wp-includes/plugin.php#L352
      */
     public function do_action($tag, $arg = '')
     {
@@ -922,9 +922,9 @@ class WPAlchemy_MetaBox
      * Used to check if creating a new post or editing one
      *
      * @static
-     * @since	1.3.7
-     * @return	bool
-     * @see		_is_page()
+     * @since   1.3.7
+     * @return  bool
+     * @see     _is_page()
      */
     static public function _is_post()
     {
@@ -940,9 +940,9 @@ class WPAlchemy_MetaBox
      * Used to check if creating a new page or editing one
      *
      * @static
-     * @since	1.3.7
-     * @return	bool
-     * @see		_is_post()
+     * @since   1.3.7
+     * @return  bool
+     * @see     _is_post()
      */
     static public function _is_page()
     {
@@ -958,9 +958,9 @@ class WPAlchemy_MetaBox
      * Used to check if creating or editing a post or page
      *
      * @static
-     * @since	1.3.8
-     * @return	string "post" or "page"
-     * @see		_is_post(), _is_page()
+     * @since   1.3.8
+     * @return  string "post" or "page"
+     * @see     _is_post(), _is_page()
      */
     static public function _is_post_or_page()
     {
@@ -986,8 +986,8 @@ class WPAlchemy_MetaBox
      * new post, page or custom post type.
      *
      * @static
-     * @since	1.4.6
-     * @return	string [custom_post_type], page or post
+     * @since   1.4.6
+     * @return  string [custom_post_type], page or post
      */
     static public function _get_current_post_type()
     {
@@ -1026,8 +1026,8 @@ class WPAlchemy_MetaBox
      * Used to get the current post id.
      *
      * @static
-     * @since	1.4.8
-     * @return	int post ID
+     * @since   1.4.8
+     * @return  int post ID
      */
     static public function _get_post_id()
     {
@@ -1050,7 +1050,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function can_output()
     {
@@ -1285,8 +1285,8 @@ class WPAlchemy_MetaBox
      * WordPress admin_footer action.
      *
      * @static
-     * @since	1.3
-     * @see		_global_foot()
+     * @since   1.3
+     * @see     _global_foot()
      */
     static public function _global_head()
     {
@@ -1448,8 +1448,8 @@ class WPAlchemy_MetaBox
      * admin_footer action.
      *
      * @static
-     * @since	1.3
-     * @see		_global_head()
+     * @since   1.3
+     * @see     _global_head()
      */
     static public function _global_foot()
     {
@@ -1473,10 +1473,10 @@ class WPAlchemy_MetaBox
     /**
      * Gets the meta data for a meta box
      *
-     * @since	1.0
-     * @param	int $post_id optional post ID for which to retrieve the meta data
-     * @return	array
-     * @see		_meta
+     * @since   1.0
+     * @param   int $post_id optional post ID for which to retrieve the meta data
+     * @return  array
+     * @see     _meta
      */
     public function the_meta($post_id = NULL)
     {
@@ -1489,11 +1489,11 @@ class WPAlchemy_MetaBox
      * Internal method calls will typically bypass the data retrieval and will
      * immediately return the current meta data
      *
-     * @since	1.3
-     * @param	int $post_id optional post ID for which to retrieve the meta data
-     * @param	bool $internal optional boolean if internally calling
-     * @return	array
-     * @see		the_meta()
+     * @since   1.3
+     * @param   int $post_id optional post ID for which to retrieve the meta data
+     * @param   bool $internal optional boolean if internally calling
+     * @return  array
+     * @see     the_meta()
      */
     protected function _meta($post_id = NULL, $internal = FALSE)
     {
@@ -1542,7 +1542,7 @@ class WPAlchemy_MetaBox
 
     // user can also use the_ID(), php functions are case-insensitive
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function the_id()
     {
@@ -1550,7 +1550,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function get_the_id()
     {
@@ -1558,7 +1558,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function the_field($n, $hint = NULL)
     {
@@ -1569,7 +1569,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function have_value($n = NULL)
     {
@@ -1579,7 +1579,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function the_value($n = NULL)
     {
@@ -1587,7 +1587,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function get_the_value($n = NULL, $collection = FALSE)
     {
@@ -1671,7 +1671,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function the_name($n = NULL)
     {
@@ -1679,7 +1679,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function get_the_name($n = NULL)
     {
@@ -1719,7 +1719,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.1
+     * @since   1.1
      */
     public function the_index()
     {
@@ -1727,7 +1727,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.1
+     * @since   1.1
      */
     public function get_the_index()
     {
@@ -1735,7 +1735,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function is_first()
     {
@@ -1745,7 +1745,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function is_last()
     {
@@ -1757,11 +1757,11 @@ class WPAlchemy_MetaBox
     /**
      * Used to check if a value is a match
      *
-     * @since	1.1
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @return	bool
-     * @see		is_value()
+     * @since   1.1
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @return  bool
+     * @see     is_value()
      */
     public function is_value($n, $v = NULL)
     {
@@ -1785,11 +1785,11 @@ class WPAlchemy_MetaBox
      * Used to check if a value is selected, useful when working with checkbox,
      * radio and select values.
      *
-     * @since	1.3
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @return	bool
-     * @see		is_value()
+     * @since   1.3
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @return  bool
+     * @see     is_value()
      */
     public function is_selected($n, $v = NULL, $is_default = FALSE)
     {
@@ -1825,10 +1825,10 @@ class WPAlchemy_MetaBox
      * Prints the current state of a checkbox field and should be used inline
      * within the INPUT tag.
      *
-     * @since	1.3
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @see		get_the_checkbox_state()
+     * @since   1.3
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @see     get_the_checkbox_state()
      */
     public function the_checkbox_state($n, $v = NULL, $is_default = FALSE)
     {
@@ -1839,11 +1839,11 @@ class WPAlchemy_MetaBox
      * Returns the current state of a checkbox field, the returned string is
      * suitable to be used inline within the INPUT tag.
      *
-     * @since	1.3
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @return	string suitable to be used inline within the INPUT tag
-     * @see		the_checkbox_state()
+     * @since   1.3
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @return  string suitable to be used inline within the INPUT tag
+     * @see     the_checkbox_state()
      */
     public function get_the_checkbox_state($n, $v = NULL, $is_default = FALSE)
     {
@@ -1854,10 +1854,10 @@ class WPAlchemy_MetaBox
      * Prints the current state of a radio field and should be used inline
      * within the INPUT tag.
      *
-     * @since	1.3
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @see		get_the_radio_state()
+     * @since   1.3
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @see     get_the_radio_state()
      */
     public function the_radio_state($n, $v = NULL, $is_default = FALSE)
     {
@@ -1868,11 +1868,11 @@ class WPAlchemy_MetaBox
      * Returns the current state of a radio field, the returned string is
      * suitable to be used inline within the INPUT tag.
      *
-     * @since	1.3
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @return	string suitable to be used inline within the INPUT tag
-     * @see		the_radio_state()
+     * @since   1.3
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @return  string suitable to be used inline within the INPUT tag
+     * @see     the_radio_state()
      */
     public function get_the_radio_state($n, $v = NULL, $is_default = FALSE)
     {
@@ -1883,10 +1883,10 @@ class WPAlchemy_MetaBox
      * Prints the current state of a select field and should be used inline
      * within the SELECT tag.
      *
-     * @since	1.3
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @see		get_the_select_state()
+     * @since   1.3
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @see     get_the_select_state()
      */
     public function the_select_state($n, $v = NULL, $is_default = FALSE)
     {
@@ -1897,11 +1897,11 @@ class WPAlchemy_MetaBox
      * Returns the current state of a select field, the returned string is
      * suitable to be used inline within the SELECT tag.
      *
-     * @since	1.3
-     * @param	string $n the field name to check or the value to check for (if the_field() is used prior)
-     * @param	string $v optional the value to check for
-     * @return	string suitable to be used inline within the SELECT tag
-     * @see		the_select_state()
+     * @since   1.3
+     * @param   string $n the field name to check or the value to check for (if the_field() is used prior)
+     * @param   string $v optional the value to check for
+     * @return  string suitable to be used inline within the SELECT tag
+     * @see     the_select_state()
      */
     public function get_the_select_state($n, $v = NULL, $is_default = FALSE)
     {
@@ -1909,7 +1909,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.1
+     * @since   1.1
      */
     public function the_group_open($t = 'div')
     {
@@ -1917,7 +1917,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.1
+     * @since   1.1
      */
     public function get_the_group_open($t = 'div')
     {
@@ -1957,7 +1957,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.1
+     * @since   1.1
      */
     public function the_group_close()
     {
@@ -1965,7 +1965,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.1
+     * @since   1.1
      */
     public function get_the_group_close()
     {
@@ -1980,7 +1980,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.1
+     * @since   1.1
      */
     public function have_fields_and_multi($n, $options = NULL)
     {
@@ -2008,7 +2008,7 @@ class WPAlchemy_MetaBox
 
     /**
      * @deprecated
-     * @since	1.0
+     * @since   1.0
      */
     public function have_fields_and_one($n)
     {
@@ -2018,7 +2018,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function have_fields($n,$length=NULL)
     {
@@ -2028,7 +2028,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     protected function _loop($n,$length=NULL,$and_one=0)
     {
@@ -2084,7 +2084,7 @@ class WPAlchemy_MetaBox
     }
 
     /**
-     * @since	1.0
+     * @since   1.0
      */
     public function _save($post_id)
     {
@@ -2229,8 +2229,8 @@ class WPAlchemy_MetaBox
      * Cleans an array, removing blank ('') values
      *
      * @static
-     * @since	1.0
-     * @param	array the array to clean (passed by reference)
+     * @since   1.0
+     * @param   array the array to clean (passed by reference)
      */
     static public function clean(&$arr)
     {

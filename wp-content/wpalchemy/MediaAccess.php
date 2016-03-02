@@ -5,7 +5,7 @@
  * @copyright	Copyright (c) 2011, Dimas Begunoff, http://farinspace.com/
  * @license  	http://en.wikipedia.org/wiki/MIT_License The MIT License
  * @package  	WPAlchemy
- * @version  	0.2.1
+ * @version  	0.2.2
  * @link     	http://github.com/farinspace/wpalchemy/
  * @link     	http://farinspace.com/
  */
@@ -118,7 +118,7 @@
 	{
 		$this->tab = $name;
 
-		$this;
+		return $this;
 	}
 
 	/**
@@ -151,7 +151,7 @@
 	public function getField(array $attr)
 	{
 		$groupname = isset($attr['groupname']) ? $attr['groupname'] : $this->groupname ;
-		
+
 		$attr_default = array
 		(
 			'type' => 'text',
@@ -200,7 +200,7 @@
 		$tab = ! empty($tab) ? $tab : $this->tab ;
 
 		$tab = ! empty($tab) ? $tab : 'library' ;
-		
+
 		return 'media-upload.php?post_id=' . $post_ID . '&tab=' . $tab . '&TB_iframe=1';
 	}
 
@@ -218,7 +218,7 @@
 	public function getButtonClass($groupname = null)
 	{
 		$groupname = isset($groupname) ? $groupname : $this->groupname ;
-		
+
 		return $this->button_class_name . '-' . $groupname . ' thickbox';
 	}
 
@@ -254,7 +254,7 @@
 		$groupname = isset($attr['groupname']) ? $attr['groupname'] : $this->groupname ;
 
 		$tab = isset($attr['tab']) ? $attr['tab'] : $this->tab ;
-		
+
 		$attr_default = array
 		(
 			'label' => 'Add Media',
@@ -410,5 +410,3 @@
 		}
 	}
 }
-
-/* End of file */

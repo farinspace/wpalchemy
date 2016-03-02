@@ -10,13 +10,6 @@
  * @link        http://farinspace.com
  */
 
-// todo: perhaps move _global_head and _global_foot locally, when first run
-// define a constant to prevent other instances from running again ...
-
-add_action('admin_head', array('WPAlchemy_MetaBox', '_global_head'));
-
-add_action('admin_footer', array('WPAlchemy_MetaBox', '_global_foot'));
-
 define('WPALCHEMY_MODE_ARRAY', 'array');
 
 define('WPALCHEMY_MODE_EXTRACT', 'extract');
@@ -463,6 +456,11 @@ class WPAlchemy_MetaBox
 
             // uses the default wordpress-importer plugin hook
             add_action('import_post_meta', array($this, '_import'), 10, 3);
+
+            // todo: when first run define a constant to prevent other instances from running again ...
+            add_action( 'admin_head', array( $this, '_global_head' ) );
+
+            add_action( 'admin_footer', array( $this, '_global_foot' ) );
         }
         else
         {

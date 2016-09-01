@@ -1305,9 +1305,9 @@ class WPAlchemy_MetaBox
         // todo: you're assuming people will want to use this exact functionality
         // consider giving a developer access to change this via hooks/callbacks
 		
-		wp_enqueue_style( 'wpalchemy-metabox-css', WPALCHEMY_PATH . 'metabox.css' );
+        wp_enqueue_style( 'wpalchemy-metabox-css', WPALCHEMY_PATH . 'metabox.css' );
         // include javascript for special functionality
-		wp_enqueue_script( 'wpalchemy-metabox-copy', WPALCHEMY_PATH . 'metabox-copy.js' );
+        wp_enqueue_script( 'wpalchemy-metabox-copy', WPALCHEMY_PATH . 'metabox-copy.js' );
     }
 
     /**

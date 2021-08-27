@@ -457,8 +457,10 @@ class WPAlchemy_MetaBox
             // uses the default wordpress-importer plugin hook
             add_action('import_post_meta', array($this, '_import'), 10, 3);
 
-            // todo: when first run define a constant to prevent other instances from running again ...
-            add_action( 'admin_head', array( $this, '_global_head' ) );
+            if (!defined('HEAD_CALLED')) {
+                add_action( 'admin_head', array( $this, '_global_head' ) );
+                define('HEAD_CALLED', true);
+            }
 
             add_action( 'admin_footer', array( $this, '_global_foot' ) );
         }

@@ -2045,7 +2045,7 @@ class WPAlchemy_MetaBox
 
         $this->name = $n;
 
-        $cnt = count(!empty($this->meta[$n])?$this->meta[$n]:[]);
+        $cnt = (!empty($this->meta[$n])) ? count($this->meta[$n]) : 0;
 
         $length = is_null($length) ? $cnt : $length ;
 
